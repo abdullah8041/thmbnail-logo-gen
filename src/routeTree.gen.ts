@@ -10,11 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiRewritePromptRouteImport } from './routes/api/rewrite-prompt'
 import { Route as ApiGenerateThumbnailRouteImport } from './routes/api/generate-thumbnail'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiRewritePromptRoute = ApiRewritePromptRouteImport.update({
+  id: '/api/rewrite-prompt',
+  path: '/api/rewrite-prompt',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiGenerateThumbnailRoute = ApiGenerateThumbnailRouteImport.update({
@@ -26,27 +32,31 @@ const ApiGenerateThumbnailRoute = ApiGenerateThumbnailRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/api/generate-thumbnail': typeof ApiGenerateThumbnailRoute
+  '/api/rewrite-prompt': typeof ApiRewritePromptRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api/generate-thumbnail': typeof ApiGenerateThumbnailRoute
+  '/api/rewrite-prompt': typeof ApiRewritePromptRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/api/generate-thumbnail': typeof ApiGenerateThumbnailRoute
+  '/api/rewrite-prompt': typeof ApiRewritePromptRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/generate-thumbnail'
+  fullPaths: '/' | '/api/generate-thumbnail' | '/api/rewrite-prompt'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/generate-thumbnail'
-  id: '__root__' | '/' | '/api/generate-thumbnail'
+  to: '/' | '/api/generate-thumbnail' | '/api/rewrite-prompt'
+  id: '__root__' | '/' | '/api/generate-thumbnail' | '/api/rewrite-prompt'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ApiGenerateThumbnailRoute: typeof ApiGenerateThumbnailRoute
+  ApiRewritePromptRoute: typeof ApiRewritePromptRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -56,6 +66,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/rewrite-prompt': {
+      id: '/api/rewrite-prompt'
+      path: '/api/rewrite-prompt'
+      fullPath: '/api/rewrite-prompt'
+      preLoaderRoute: typeof ApiRewritePromptRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/generate-thumbnail': {
@@ -71,17 +88,8 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ApiGenerateThumbnailRoute: ApiGenerateThumbnailRoute,
+  ApiRewritePromptRoute: ApiRewritePromptRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
