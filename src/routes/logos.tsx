@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Download, Sparkles, Shapes } from "lucide-react";
 import { AppNavDrawer } from "@/components/AppNavDrawer";
+import { PromptChatSidebar } from "@/components/PromptChatSidebar";
 
 export const Route = createFileRoute("/logos")({
   head: () => ({
@@ -75,6 +76,7 @@ function Logos() {
       <div className="mx-auto max-w-6xl px-6 py-12">
         <div className="mb-6 flex items-center justify-between">
           <AppNavDrawer />
+          <PromptChatSidebar kind="logo" onUsePrompt={(p) => setPrompt(p)} />
         </div>
         <header className="mb-10 text-center">
           <div className="inline-flex items-center gap-2 rounded-full border bg-muted/50 px-3 py-1 text-xs text-muted-foreground">
