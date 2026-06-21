@@ -9,10 +9,16 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as LogosRouteImport } from './routes/logos'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiRewritePromptRouteImport } from './routes/api/rewrite-prompt'
 import { Route as ApiGenerateImageRouteImport } from './routes/api/generate-image'
 
+const LogosRoute = LogosRouteImport.update({
+  id: '/logos',
+  path: '/logos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -31,36 +37,52 @@ const ApiGenerateImageRoute = ApiGenerateImageRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/logos': typeof LogosRoute
   '/api/generate-image': typeof ApiGenerateImageRoute
   '/api/rewrite-prompt': typeof ApiRewritePromptRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/logos': typeof LogosRoute
   '/api/generate-image': typeof ApiGenerateImageRoute
   '/api/rewrite-prompt': typeof ApiRewritePromptRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/logos': typeof LogosRoute
   '/api/generate-image': typeof ApiGenerateImageRoute
   '/api/rewrite-prompt': typeof ApiRewritePromptRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/generate-image' | '/api/rewrite-prompt'
+  fullPaths: '/' | '/logos' | '/api/generate-image' | '/api/rewrite-prompt'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/generate-image' | '/api/rewrite-prompt'
-  id: '__root__' | '/' | '/api/generate-image' | '/api/rewrite-prompt'
+  to: '/' | '/logos' | '/api/generate-image' | '/api/rewrite-prompt'
+  id:
+    | '__root__'
+    | '/'
+    | '/logos'
+    | '/api/generate-image'
+    | '/api/rewrite-prompt'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  LogosRoute: typeof LogosRoute
   ApiGenerateImageRoute: typeof ApiGenerateImageRoute
   ApiRewritePromptRoute: typeof ApiRewritePromptRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/logos': {
+      id: '/logos'
+      path: '/logos'
+      fullPath: '/logos'
+      preLoaderRoute: typeof LogosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -87,6 +109,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  LogosRoute: LogosRoute,
   ApiGenerateImageRoute: ApiGenerateImageRoute,
   ApiRewritePromptRoute: ApiRewritePromptRoute,
 }
