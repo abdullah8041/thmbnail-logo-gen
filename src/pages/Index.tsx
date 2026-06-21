@@ -1,4 +1,3 @@
-import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { streamImage } from "@/lib/streamImage";
 import { Button } from "@/components/ui/button";
@@ -17,26 +16,7 @@ import {
 import { PromptChatSidebar } from "@/components/PromptChatSidebar";
 import { AppNavDrawer } from "@/components/AppNavDrawer";
 import { SiteShell } from "@/components/SiteShell";
-
-export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "Thumbly — AI YouTube & TikTok Thumbnail Generator" },
-      {
-        name: "description",
-        content:
-          "Generate eye-catching YouTube and TikTok thumbnails from a single text prompt with AI.",
-      },
-      { property: "og:title", content: "Thumbly — AI Thumbnail Generator" },
-      {
-        property: "og:description",
-        content:
-          "Generate eye-catching YouTube and TikTok thumbnails from a single text prompt with AI.",
-      },
-    ],
-  }),
-  component: Index,
-});
+import { usePageMeta } from "@/lib/usePageMeta";
 
 type Platform = "youtube" | "tiktok";
 type Result = { src: string | null; final: boolean; error: string | null; loading: boolean };
@@ -50,7 +30,12 @@ const SAMPLES = [
   { tag: "Vlog", text: "Cyberpunk skater jumping over a hovercar at night, Tokyo neon signs" },
 ];
 
-function Index() {
+export default function IndexPage() {
+  usePageMeta({
+    title: "Thumbly — AI YouTube & TikTok Thumbnail Generator",
+    description:
+      "Generate eye-catching YouTube and TikTok thumbnails from a single text prompt with AI.",
+  });
   const [prompt, setPrompt] = useState("");
   const [yt, setYt] = useState<Result>(EMPTY);
   const [tt, setTt] = useState<Result>(EMPTY);
@@ -70,10 +55,7 @@ function Index() {
     setYt({ src: null, final: false, error: null, loading: true });
     setTt({ src: null, final: false, error: null, loading: true });
 
-    const run = async (
-      platform: Platform,
-      set: (r: Result) => void,
-    ) => {
+    const run = async (platform: Platform, set: (r: Result) => void) => {
       try {
         await streamImage(
           "/api/generate-image",
@@ -109,7 +91,6 @@ function Index() {
       <HeroLine status={status} />
 
       <section className="mt-8 grid grid-cols-1 gap-4 lg:grid-cols-6 lg:grid-rows-[auto_auto_auto] lg:gap-5">
-        {/* Composer — hero tile */}
         <div className="bento-tile relative overflow-hidden p-6 lg:col-span-4 lg:row-span-2">
           <div className="pointer-events-none absolute -top-24 -left-24 h-72 w-72 rounded-full bg-[oklch(0.7_0.28_350/0.25)] blur-3xl" />
           <div className="pointer-events-none absolute -bottom-32 -right-20 h-72 w-72 rounded-full bg-[oklch(0.86_0.18_190/0.18)] blur-3xl" />
@@ -155,7 +136,6 @@ function Index() {
           </div>
         </div>
 
-        {/* TikTok tall tile (right column) */}
         <div className="lg:col-span-2 lg:row-span-3">
           <ResultCard
             title="TikTok"
@@ -169,10 +149,8 @@ function Index() {
           />
         </div>
 
-        {/* Status tile */}
         <StatusTile status={status} />
 
-        {/* Samples tile */}
         <div className="bento-tile bento-tile-hover p-5 lg:col-span-2">
           <div className="mb-3 flex items-center gap-2">
             <Wand2 className="h-3.5 w-3.5 text-accent" />
@@ -198,7 +176,6 @@ function Index() {
           </div>
         </div>
 
-        {/* YouTube wide tile (bottom-left, spans 4) */}
         <div className="lg:col-span-4">
           <ResultCard
             title="YouTube"
