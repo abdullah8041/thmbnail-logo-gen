@@ -10,7 +10,6 @@ import {
   Shapes,
   Square,
   RectangleHorizontal,
-  Wand2,
   Command,
   Palette,
 } from "lucide-react";
