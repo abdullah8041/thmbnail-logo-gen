@@ -4,6 +4,7 @@ import { streamImage } from "@/lib/streamImage";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Download, Sparkles } from "lucide-react";
+import { PromptChatSidebar } from "@/components/PromptChatSidebar";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -77,6 +78,9 @@ function Index() {
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-6xl px-6 py-12">
+        <div className="mb-6 flex justify-end">
+          <PromptChatSidebar onUsePrompt={(p) => setPrompt(p)} />
+        </div>
         <header className="mb-10 text-center">
           <div className="inline-flex items-center gap-2 rounded-full border bg-muted/50 px-3 py-1 text-xs text-muted-foreground">
             <Sparkles className="h-3.5 w-3.5" />
