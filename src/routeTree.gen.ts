@@ -9,10 +9,16 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as LogosRouteImport } from './routes/logos'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiRewritePromptRouteImport } from './routes/api/rewrite-prompt'
-import { Route as ApiGenerateThumbnailRouteImport } from './routes/api/generate-thumbnail'
+import { Route as ApiGenerateImageRouteImport } from './routes/api/generate-image'
 
+const LogosRoute = LogosRouteImport.update({
+  id: '/logos',
+  path: '/logos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -23,44 +29,60 @@ const ApiRewritePromptRoute = ApiRewritePromptRouteImport.update({
   path: '/api/rewrite-prompt',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiGenerateThumbnailRoute = ApiGenerateThumbnailRouteImport.update({
-  id: '/api/generate-thumbnail',
-  path: '/api/generate-thumbnail',
+const ApiGenerateImageRoute = ApiGenerateImageRouteImport.update({
+  id: '/api/generate-image',
+  path: '/api/generate-image',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/api/generate-thumbnail': typeof ApiGenerateThumbnailRoute
+  '/logos': typeof LogosRoute
+  '/api/generate-image': typeof ApiGenerateImageRoute
   '/api/rewrite-prompt': typeof ApiRewritePromptRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/api/generate-thumbnail': typeof ApiGenerateThumbnailRoute
+  '/logos': typeof LogosRoute
+  '/api/generate-image': typeof ApiGenerateImageRoute
   '/api/rewrite-prompt': typeof ApiRewritePromptRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/api/generate-thumbnail': typeof ApiGenerateThumbnailRoute
+  '/logos': typeof LogosRoute
+  '/api/generate-image': typeof ApiGenerateImageRoute
   '/api/rewrite-prompt': typeof ApiRewritePromptRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/generate-thumbnail' | '/api/rewrite-prompt'
+  fullPaths: '/' | '/logos' | '/api/generate-image' | '/api/rewrite-prompt'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/generate-thumbnail' | '/api/rewrite-prompt'
-  id: '__root__' | '/' | '/api/generate-thumbnail' | '/api/rewrite-prompt'
+  to: '/' | '/logos' | '/api/generate-image' | '/api/rewrite-prompt'
+  id:
+    | '__root__'
+    | '/'
+    | '/logos'
+    | '/api/generate-image'
+    | '/api/rewrite-prompt'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  ApiGenerateThumbnailRoute: typeof ApiGenerateThumbnailRoute
+  LogosRoute: typeof LogosRoute
+  ApiGenerateImageRoute: typeof ApiGenerateImageRoute
   ApiRewritePromptRoute: typeof ApiRewritePromptRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/logos': {
+      id: '/logos'
+      path: '/logos'
+      fullPath: '/logos'
+      preLoaderRoute: typeof LogosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -75,11 +97,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiRewritePromptRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/generate-thumbnail': {
-      id: '/api/generate-thumbnail'
-      path: '/api/generate-thumbnail'
-      fullPath: '/api/generate-thumbnail'
-      preLoaderRoute: typeof ApiGenerateThumbnailRouteImport
+    '/api/generate-image': {
+      id: '/api/generate-image'
+      path: '/api/generate-image'
+      fullPath: '/api/generate-image'
+      preLoaderRoute: typeof ApiGenerateImageRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -87,7 +109,8 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  ApiGenerateThumbnailRoute: ApiGenerateThumbnailRoute,
+  LogosRoute: LogosRoute,
+  ApiGenerateImageRoute: ApiGenerateImageRoute,
   ApiRewritePromptRoute: ApiRewritePromptRoute,
 }
 export const routeTree = rootRouteImport
