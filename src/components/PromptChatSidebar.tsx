@@ -125,14 +125,22 @@ export function PromptChatSidebar({
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="outline" className="gap-2">
-          <TriggerIcon className="h-4 w-4" /> {preset.triggerLabel}
+        <Button
+          variant="outline"
+          className="gap-2 border-accent/40 bg-accent/10 text-accent hover:bg-accent/20 hover:text-accent"
+        >
+          <TriggerIcon className="h-4 w-4" />
+          <span className="hidden sm:inline">{preset.triggerLabel}</span>
         </Button>
       </SheetTrigger>
-      <SheetContent side="right" className="flex w-full flex-col gap-0 p-0 sm:max-w-md">
-        <SheetHeader className="border-b px-5 py-4">
-          <SheetTitle className="flex items-center gap-2">
-            <TriggerIcon className="h-4 w-4" /> {preset.title}
+      <SheetContent
+        side="right"
+        className="flex w-full flex-col gap-0 border-l border-border/40 bg-background/95 p-0 backdrop-blur-xl sm:max-w-md"
+      >
+        <SheetHeader className="border-b border-border/40 px-6 py-5">
+          <SheetTitle className="flex items-center gap-2 font-display text-lg">
+            <TriggerIcon className="h-4 w-4 text-accent" />
+            <span className="text-gradient-pink-cyan">{preset.title}</span>
           </SheetTitle>
           <SheetDescription>{preset.description}</SheetDescription>
         </SheetHeader>

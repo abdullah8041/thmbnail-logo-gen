@@ -33,16 +33,25 @@ export function AppNavDrawer() {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="outline" size="icon" aria-label="Open navigation">
+        <Button
+          variant="outline"
+          size="icon"
+          aria-label="Open navigation"
+          className="border-border/60 bg-card/60 backdrop-blur hover:border-accent/60 hover:text-accent"
+        >
           <Menu className="h-4 w-4" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-72 p-0">
-        <SheetHeader className="border-b px-5 py-4 text-left">
-          <SheetTitle>Creator Studio</SheetTitle>
-          <SheetDescription>Pick what you want to create</SheetDescription>
+      <SheetContent side="left" className="w-80 border-r border-border/40 bg-background/95 p-0 backdrop-blur-xl">
+        <SheetHeader className="border-b border-border/40 px-6 py-5 text-left">
+          <SheetTitle className="font-display text-xl">
+            Creator <span className="text-gradient-pink-cyan">Studio</span>
+          </SheetTitle>
+          <SheetDescription className="font-mono text-[11px] uppercase tracking-wider">
+            Pick a tool
+          </SheetDescription>
         </SheetHeader>
-        <nav className="flex flex-col gap-1 p-3">
+        <nav className="flex flex-col gap-2 p-4">
           {ITEMS.map((item) => {
             const Icon = item.icon;
             const active = pathname === item.to;
@@ -51,15 +60,17 @@ export function AppNavDrawer() {
                 key={item.to}
                 to={item.to}
                 onClick={() => setOpen(false)}
-                className={`flex items-start gap-3 rounded-lg border px-3 py-3 text-left transition-colors ${
+                className={`group flex items-start gap-3 rounded-2xl border px-4 py-3.5 text-left transition-all ${
                   active
-                    ? "border-primary bg-primary/5"
-                    : "border-transparent hover:bg-muted"
+                    ? "border-primary/50 bg-primary/10 glow-pink"
+                    : "border-border/60 bg-card/40 hover:border-accent/50 hover:bg-accent/5"
                 }`}
               >
-                <Icon className="mt-0.5 h-4 w-4 shrink-0" />
+                <div className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl ${active ? "bg-primary/20 text-primary" : "bg-background/60 text-accent"}`}>
+                  <Icon className="h-4 w-4" />
+                </div>
                 <div className="min-w-0">
-                  <div className="text-sm font-medium">{item.label}</div>
+                  <div className="text-sm font-semibold">{item.label}</div>
                   <div className="text-xs text-muted-foreground">
                     {item.description}
                   </div>
@@ -68,6 +79,9 @@ export function AppNavDrawer() {
             );
           })}
         </nav>
+        <div className="mt-auto border-t border-border/40 px-6 py-4 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+          v1.0 · neon edition
+        </div>
       </SheetContent>
     </Sheet>
   );
