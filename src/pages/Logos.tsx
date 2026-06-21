@@ -1,4 +1,3 @@
-import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { streamImage } from "@/lib/streamImage";
 import { Button } from "@/components/ui/button";
@@ -16,26 +15,7 @@ import {
 import { AppNavDrawer } from "@/components/AppNavDrawer";
 import { PromptChatSidebar } from "@/components/PromptChatSidebar";
 import { SiteShell } from "@/components/SiteShell";
-
-export const Route = createFileRoute("/logos")({
-  head: () => ({
-    meta: [
-      { title: "Thumbly — AI Logo Generator" },
-      {
-        name: "description",
-        content:
-          "Generate clean, modern brand logos from a single text prompt with AI.",
-      },
-      { property: "og:title", content: "Thumbly — AI Logo Generator" },
-      {
-        property: "og:description",
-        content:
-          "Generate clean, modern brand logos from a single text prompt with AI.",
-      },
-    ],
-  }),
-  component: Logos,
-});
+import { usePageMeta } from "@/lib/usePageMeta";
 
 type Variant = "square" | "wide";
 type Result = {
@@ -53,7 +33,11 @@ const SAMPLES = [
   { tag: "Outdoors", text: "Atlas Outdoors, hiking gear, vintage badge, mountain + sun" },
 ];
 
-function Logos() {
+export default function LogosPage() {
+  usePageMeta({
+    title: "Thumbly — AI Logo Generator",
+    description: "Generate clean, modern brand logos from a single text prompt with AI.",
+  });
   const [prompt, setPrompt] = useState("");
   const [sq, setSq] = useState<Result>(EMPTY);
   const [wide, setWide] = useState<Result>(EMPTY);
@@ -96,9 +80,7 @@ function Logos() {
   return (
     <SiteShell
       nav={<AppNavDrawer />}
-      action={
-        <PromptChatSidebar kind="logo" onUsePrompt={(p) => setPrompt(p)} />
-      }
+      action={<PromptChatSidebar kind="logo" onUsePrompt={(p) => setPrompt(p)} />}
     >
       <header className="flex flex-wrap items-end justify-between gap-6">
         <div className="min-w-0">
@@ -115,7 +97,6 @@ function Logos() {
       </header>
 
       <section className="mt-8 grid grid-cols-1 gap-4 lg:grid-cols-6 lg:gap-5">
-        {/* Composer */}
         <div className="bento-tile relative overflow-hidden p-6 lg:col-span-4 lg:row-span-2">
           <div className="pointer-events-none absolute -top-24 -right-24 h-72 w-72 rounded-full bg-[oklch(0.86_0.18_190/0.22)] blur-3xl" />
           <div className="pointer-events-none absolute -bottom-32 -left-20 h-72 w-72 rounded-full bg-[oklch(0.7_0.28_350/0.2)] blur-3xl" />
@@ -161,7 +142,6 @@ function Logos() {
           </div>
         </div>
 
-        {/* Square logo */}
         <div className="lg:col-span-2 lg:row-span-2">
           <LogoCard
             title="Square Mark"
@@ -175,7 +155,6 @@ function Logos() {
           />
         </div>
 
-        {/* Wide logo */}
         <div className="lg:col-span-4">
           <LogoCard
             title="Wide Wordmark"
@@ -188,7 +167,6 @@ function Logos() {
           />
         </div>
 
-        {/* Samples */}
         <div className="bento-tile bento-tile-hover p-5 lg:col-span-2">
           <div className="mb-3 flex items-center gap-2">
             <Palette className="h-3.5 w-3.5 text-primary" />
@@ -243,9 +221,7 @@ function LogoCard({
     <div className={`bento-tile bento-tile-hover relative flex ${tall ? "h-full" : ""} flex-col p-5`}>
       <div className="mb-4 flex items-center justify-between gap-2">
         <div className="flex items-center gap-3">
-          <div
-            className={`grid h-9 w-9 place-items-center rounded-xl border border-border/60 bg-background/60 ${ring}`}
-          >
+          <div className={`grid h-9 w-9 place-items-center rounded-xl border border-border/60 bg-background/60 ${ring}`}>
             <Icon className="h-4 w-4" />
           </div>
           <div className="min-w-0">
