@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, NavLink as RouterNavLink } from "react-router-dom";
 
 export function SiteShell({
   children,
@@ -63,16 +63,16 @@ export function SiteShell({
 
 function NavLink({ to, label }: { to: "/" | "/logos"; label: string }) {
   return (
-    <Link
+    <RouterNavLink
       to={to}
-      className="rounded-full px-3 py-1.5 text-sm text-muted-foreground transition hover:bg-accent/10 hover:text-accent"
-      activeProps={{
-        className:
-          "rounded-full px-3 py-1.5 text-sm bg-primary/15 text-primary border border-primary/30",
-      }}
-      activeOptions={{ exact: true }}
+      end
+      className={({ isActive }) =>
+        isActive
+          ? "rounded-full border border-primary/30 bg-primary/15 px-3 py-1.5 text-sm text-primary"
+          : "rounded-full px-3 py-1.5 text-sm text-muted-foreground transition hover:bg-accent/10 hover:text-accent"
+      }
     >
       {label}
-    </Link>
+    </RouterNavLink>
   );
 }
