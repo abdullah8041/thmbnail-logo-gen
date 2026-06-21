@@ -77,14 +77,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
+      { title: "Thmbnail Or Logo Gen" },
+      { name: "description", content: "Kind Companion generates YouTube and TikTok thumbnails from text prompts." },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { property: "og:title", content: "Thmbnail Or Logo Gen" },
+      { property: "og:description", content: "Kind Companion generates YouTube and TikTok thumbnails from text prompts." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "Thmbnail Or Logo Gen" },
+      { name: "twitter:description", content: "Kind Companion generates YouTube and TikTok thumbnails from text prompts." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/75982c8f-6e44-4a62-aefb-95d985954c09/id-preview-c0fdf202--caa567f9-f634-49c3-a7ca-1b15ae28565f.lovable.app-1782057108082.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/75982c8f-6e44-4a62-aefb-95d985954c09/id-preview-c0fdf202--caa567f9-f634-49c3-a7ca-1b15ae28565f.lovable.app-1782057108082.png" },
     ],
     links: [
       {
