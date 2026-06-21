@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiRewritePromptRouteImport } from './routes/api/rewrite-prompt'
+import { Route as ApiGenerateImageRouteImport } from './routes/api/generate-image'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,30 +23,39 @@ const ApiRewritePromptRoute = ApiRewritePromptRouteImport.update({
   path: '/api/rewrite-prompt',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiGenerateImageRoute = ApiGenerateImageRouteImport.update({
+  id: '/api/generate-image',
+  path: '/api/generate-image',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/api/generate-image': typeof ApiGenerateImageRoute
   '/api/rewrite-prompt': typeof ApiRewritePromptRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/api/generate-image': typeof ApiGenerateImageRoute
   '/api/rewrite-prompt': typeof ApiRewritePromptRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/api/generate-image': typeof ApiGenerateImageRoute
   '/api/rewrite-prompt': typeof ApiRewritePromptRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/rewrite-prompt'
+  fullPaths: '/' | '/api/generate-image' | '/api/rewrite-prompt'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/rewrite-prompt'
-  id: '__root__' | '/' | '/api/rewrite-prompt'
+  to: '/' | '/api/generate-image' | '/api/rewrite-prompt'
+  id: '__root__' | '/' | '/api/generate-image' | '/api/rewrite-prompt'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ApiGenerateImageRoute: typeof ApiGenerateImageRoute
   ApiRewritePromptRoute: typeof ApiRewritePromptRoute
 }
 
@@ -65,11 +75,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiRewritePromptRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/generate-image': {
+      id: '/api/generate-image'
+      path: '/api/generate-image'
+      fullPath: '/api/generate-image'
+      preLoaderRoute: typeof ApiGenerateImageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ApiGenerateImageRoute: ApiGenerateImageRoute,
   ApiRewritePromptRoute: ApiRewritePromptRoute,
 }
 export const routeTree = rootRouteImport

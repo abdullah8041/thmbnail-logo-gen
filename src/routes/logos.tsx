@@ -3,56 +3,50 @@ import { useState } from "react";
 import { streamImage } from "@/lib/streamImage";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Download, Sparkles } from "lucide-react";
-import { PromptChatSidebar } from "@/components/PromptChatSidebar";
+import { Loader2, Download, Sparkles, Shapes } from "lucide-react";
 import { AppNavDrawer } from "@/components/AppNavDrawer";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/logos")({
   head: () => ({
     meta: [
-      { title: "Thumbly — AI YouTube & TikTok Thumbnail Generator" },
+      { title: "Thumbly — AI Logo Generator" },
       {
         name: "description",
         content:
-          "Generate eye-catching YouTube and TikTok thumbnails from a single text prompt with AI.",
+          "Generate clean, modern brand logos from a single text prompt with AI.",
       },
-      { property: "og:title", content: "Thumbly — AI Thumbnail Generator" },
+      { property: "og:title", content: "Thumbly — AI Logo Generator" },
       {
         property: "og:description",
         content:
-          "Generate eye-catching YouTube and TikTok thumbnails from a single text prompt with AI.",
+          "Generate clean, modern brand logos from a single text prompt with AI.",
       },
     ],
   }),
-  component: Index,
+  component: Logos,
 });
 
-type Platform = "youtube" | "tiktok";
+type Variant = "square" | "wide";
 type Result = { src: string | null; final: boolean; error: string | null; loading: boolean };
-
 const EMPTY: Result = { src: null, final: false, error: null, loading: false };
 
-function Index() {
+function Logos() {
   const [prompt, setPrompt] = useState("");
-  const [yt, setYt] = useState<Result>(EMPTY);
-  const [tt, setTt] = useState<Result>(EMPTY);
-
-  const busy = yt.loading || tt.loading;
+  const [sq, setSq] = useState<Result>(EMPTY);
+  const [wide, setWide] = useState<Result>(EMPTY);
+  const busy = sq.loading || wide.loading;
 
   async function generate() {
     const p = prompt.trim();
     if (!p || busy) return;
-    setYt({ src: null, final: false, error: null, loading: true });
-    setTt({ src: null, final: false, error: null, loading: true });
+    setSq({ ...EMPTY, loading: true });
+    setWide({ ...EMPTY, loading: true });
 
-    const run = async (
-      platform: Platform,
-      set: (r: Result) => void,
-    ) => {
+    const run = async (variant: Variant, set: (r: Result) => void) => {
       try {
         await streamImage(
           "/api/generate-image",
-          { prompt: p, kind: "thumbnail", variant: platform },
+          { prompt: p, kind: "logo", variant },
           (src, isFinal) =>
             set({ src, final: isFinal, error: null, loading: !isFinal }),
         );
@@ -66,7 +60,7 @@ function Index() {
       }
     };
 
-    await Promise.all([run("youtube", setYt), run("tiktok", setTt)]);
+    await Promise.all([run("square", setSq), run("wide", setWide)]);
   }
 
   function download(src: string, name: string) {
@@ -81,18 +75,17 @@ function Index() {
       <div className="mx-auto max-w-6xl px-6 py-12">
         <div className="mb-6 flex items-center justify-between">
           <AppNavDrawer />
-          <PromptChatSidebar onUsePrompt={(p) => setPrompt(p)} />
         </div>
         <header className="mb-10 text-center">
           <div className="inline-flex items-center gap-2 rounded-full border bg-muted/50 px-3 py-1 text-xs text-muted-foreground">
-            <Sparkles className="h-3.5 w-3.5" />
-            AI-powered thumbnails
+            <Shapes className="h-3.5 w-3.5" />
+            AI-powered logos
           </div>
           <h1 className="mt-4 text-4xl font-bold tracking-tight sm:text-5xl">
-            Thumbnail Generator
+            Logo Generator
           </h1>
           <p className="mt-3 text-muted-foreground">
-            Describe your video. Get a YouTube and a TikTok thumbnail instantly.
+            Describe your brand. Get a square mark and a horizontal wordmark instantly.
           </p>
         </header>
 
@@ -100,7 +93,7 @@ function Index() {
           <Textarea
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            placeholder="e.g. A gamer reacting to a giant glowing dragon, neon arcade vibes, 'EPIC WIN' text"
+            placeholder="e.g. A sustainable coffee brand called 'Verdant', earthy greens, modern serif"
             className="min-h-28 resize-none border-0 bg-transparent text-base shadow-none focus-visible:ring-0"
             onKeyDown={(e) => {
               if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) generate();
@@ -125,19 +118,19 @@ function Index() {
         </div>
 
         <section className="mt-10 grid gap-6 md:grid-cols-2">
-          <ResultCard
-            title="YouTube"
-            subtitle="1280 × 720 · 16:9"
-            aspect="aspect-video"
-            result={yt}
-            onDownload={(src) => download(src, "youtube-thumbnail.png")}
+          <LogoCard
+            title="Square Mark"
+            subtitle="1024 × 1024 · 1:1"
+            aspect="aspect-square"
+            result={sq}
+            onDownload={(src) => download(src, "logo-square.png")}
           />
-          <ResultCard
-            title="TikTok"
-            subtitle="1080 × 1920 · 9:16"
-            aspect="aspect-[9/16]"
-            result={tt}
-            onDownload={(src) => download(src, "tiktok-thumbnail.png")}
+          <LogoCard
+            title="Wide Wordmark"
+            subtitle="1536 × 1024 · 3:2"
+            aspect="aspect-[3/2]"
+            result={wide}
+            onDownload={(src) => download(src, "logo-wide.png")}
           />
         </section>
       </div>
@@ -145,7 +138,7 @@ function Index() {
   );
 }
 
-function ResultCard({
+function LogoCard({
   title,
   subtitle,
   aspect,
@@ -171,14 +164,12 @@ function ResultCard({
           </Button>
         )}
       </div>
-      <div
-        className={`relative ${aspect} overflow-hidden rounded-xl bg-muted ${title === "TikTok" ? "mx-auto max-w-xs" : ""}`}
-      >
+      <div className={`relative ${aspect} overflow-hidden rounded-xl bg-muted`}>
         {result.src ? (
           <img
             src={result.src}
-            alt={`${title} thumbnail preview`}
-            className={`h-full w-full object-cover transition-[filter] duration-300 ${
+            alt={`${title} preview`}
+            className={`h-full w-full object-contain transition-[filter] duration-300 ${
               result.final ? "blur-0" : "blur-2xl"
             }`}
           />
@@ -191,7 +182,7 @@ function ResultCard({
             ) : result.error ? (
               <span className="px-4 text-center text-destructive">{result.error}</span>
             ) : (
-              <span>Your {title} thumbnail will appear here</span>
+              <span>Your {title.toLowerCase()} will appear here</span>
             )}
           </div>
         )}
