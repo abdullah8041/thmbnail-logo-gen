@@ -211,7 +211,6 @@
   );
   background-size: 200% 100%;
   animation: shimmer 2s linear infinite;
-  }
 }
 
 @utility bento-tile {
