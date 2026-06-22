@@ -11,6 +11,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Wand2, Copy, Check, Loader2, Send, ArrowRight, Shapes } from "lucide-react";
+import { functionUrl, functionHeaders } from "@/lib/apiEndpoint";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -70,9 +71,9 @@ export function PromptChatSidebar({
     setStreaming(true);
 
     try {
-      const res = await fetch("/api/rewrite-prompt", {
+      const res = await fetch(functionUrl("rewrite-prompt"), {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...functionHeaders },
         body: JSON.stringify({
           kind,
           messages: next.filter((m) => m.content.trim().length > 0),
