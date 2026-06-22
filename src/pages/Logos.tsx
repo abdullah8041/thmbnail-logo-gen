@@ -15,9 +15,11 @@ import {
 } from "lucide-react";
 import { AppNavDrawer } from "@/components/AppNavDrawer";
 import { PromptChatSidebar } from "@/components/PromptChatSidebar";
+import { HistoryDrawer } from "@/components/HistoryDrawer";
 import { SiteShell } from "@/components/SiteShell";
 import { usePageMeta } from "@/lib/usePageMeta";
 import { useAuth } from "@/lib/auth";
+import { saveGeneration, type HistoryItem } from "@/lib/history";
 
 type Variant = "square" | "wide";
 type Result = {
@@ -74,6 +76,17 @@ export default function LogosPage() {
     };
 
     await Promise.all([run("square", setSq), run("wide", setWide)]);
+
+    setSq((cur) => {
+      if (cur.src && cur.final)
+        void saveGeneration({ kind: "logo-square", prompt: p, image_url: cur.src });
+      return cur;
+    });
+    setWide((cur) => {
+      if (cur.src && cur.final)
+        void saveGeneration({ kind: "logo-wide", prompt: p, image_url: cur.src });
+      return cur;
+    });
   }
 
   function download(src: string, name: string) {
@@ -83,9 +96,24 @@ export default function LogosPage() {
     a.click();
   }
 
+  function openHistory(item: HistoryItem) {
+    setPrompt(item.prompt);
+    const result: Result = { src: item.image_url, final: true, error: null, loading: false };
+    if (item.kind === "logo-square") setSq(result);
+    else if (item.kind === "logo-wide") setWide(result);
+  }
+
   return (
     <SiteShell
-      nav={<AppNavDrawer />}
+      nav={
+        <div className="flex items-center gap-2">
+          <AppNavDrawer />
+          <HistoryDrawer
+            kinds={["logo-square", "logo-wide"]}
+            onOpen={openHistory}
+          />
+        </div>
+      }
       action={<PromptChatSidebar kind="logo" onUsePrompt={(p) => setPrompt(p)} />}
     >
       <header className="flex flex-wrap items-end justify-between gap-6">
