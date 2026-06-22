@@ -11,6 +11,7 @@ async function streamImageOnce(
   body: unknown,
   onFrame: (dataUrl: string, isFinal: boolean) => void,
   timeoutMs: number,
+  extraHeaders: Record<string, string>,
 ): Promise<void> {
   const controller = new AbortController();
   let lastActivity = Date.now();
@@ -21,7 +22,7 @@ async function streamImageOnce(
   try {
   const res = await fetch(endpoint, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...extraHeaders },
     body: JSON.stringify(body),
     signal: controller.signal,
   });
@@ -74,10 +75,11 @@ export async function streamImage(
   endpoint: string,
   body: unknown,
   onFrame: (dataUrl: string, isFinal: boolean) => void,
-  opts: { timeoutMs?: number; maxAttempts?: number } = {},
+  opts: { timeoutMs?: number; maxAttempts?: number; headers?: Record<string, string> } = {},
 ): Promise<void> {
   const timeoutMs = opts.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   const maxAttempts = opts.maxAttempts ?? DEFAULT_MAX_ATTEMPTS;
+  const headers = opts.headers ?? {};
   let lastErr: unknown;
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     let receivedAny = false;
@@ -86,7 +88,7 @@ export async function streamImage(
       onFrame(dataUrl, isFinal);
     };
     try {
-      await streamImageOnce(endpoint, body, wrapped, timeoutMs);
+      await streamImageOnce(endpoint, body, wrapped, timeoutMs, headers);
       return;
     } catch (err) {
       lastErr = err;
