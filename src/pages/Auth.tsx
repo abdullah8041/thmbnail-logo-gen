@@ -8,6 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Loader2, Sparkles, Zap } from "lucide-react";
 import { usePageMeta } from "@/lib/usePageMeta";
 
+const REMEMBER_KEY = "profx.rememberMe";
+
 export default function AuthPage() {
   usePageMeta({
     title: "Sign in — ProFX.ai",
@@ -18,6 +20,10 @@ export default function AuthPage() {
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [remember, setRemember] = useState<boolean>(() => {
+    if (typeof window === "undefined") return true;
+    return localStorage.getItem(REMEMBER_KEY) !== "false";
+  });
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
@@ -62,6 +68,7 @@ export default function AuthPage() {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
       }
+      localStorage.setItem(REMEMBER_KEY, remember ? "true" : "false");
     } catch (e) {
       setErr(e instanceof Error ? e.message : "Something went wrong");
     } finally {
@@ -138,6 +145,16 @@ export default function AuthPage() {
 
             {err && <p className="rounded-lg border border-destructive/40 bg-destructive/10 p-2 text-xs text-destructive">{err}</p>}
             {msg && <p className="rounded-lg border border-accent/40 bg-accent/10 p-2 text-xs text-accent">{msg}</p>}
+
+            <label className="flex cursor-pointer items-center gap-2 text-xs text-muted-foreground select-none">
+              <input
+                type="checkbox"
+                checked={remember}
+                onChange={(e) => setRemember(e.target.checked)}
+                className="h-4 w-4 rounded border-border bg-background accent-[oklch(0.7_0.28_350)]"
+              />
+              Keep me signed in on this device
+            </label>
 
             <Button
               type="submit"
