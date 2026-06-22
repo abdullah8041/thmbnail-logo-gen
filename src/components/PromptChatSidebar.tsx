@@ -17,6 +17,23 @@ type Msg = { role: "user" | "assistant"; content: string };
 
 type Kind = "thumbnail" | "logo";
 
+const SYSTEMS: Record<Kind, string> = {
+  thumbnail: `You are a thumbnail prompt engineer. Rewrite the user's simple topic into ONE vivid, detailed image-generation prompt for a YouTube/TikTok thumbnail.
+
+Rules:
+- Output ONLY the final prompt text. No preamble, no explanations, no quotes, no markdown.
+- 2-4 sentences, under 90 words.
+- Include: subject + action, camera/composition, lighting, color palette, mood/style, and a short bold on-image text suggestion in quotes.
+- Make it click-worthy, high-contrast, and visually specific.`,
+  logo: `You are a brand identity prompt engineer. Rewrite the user's simple brand idea into ONE vivid, detailed image-generation prompt for a modern logo.
+
+Rules:
+- Output ONLY the final prompt text. No preamble, no explanations, no quotes, no markdown.
+- 2-4 sentences, under 90 words.
+- Include: brand name (in quotes if given), icon/symbol concept, typography style, color palette with hex or named colors, geometry/shape language, mood (minimal, playful, luxury, techy, etc.), and background treatment.
+- Favor clean, scalable, vector-friendly designs. Avoid photographic detail.`,
+};
+
 const PRESETS: Record<
   Kind,
   { title: string; description: string; starter: string; placeholder: string; triggerLabel: string; icon: typeof Wand2 }
