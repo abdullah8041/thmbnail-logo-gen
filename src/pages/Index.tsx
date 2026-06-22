@@ -18,6 +18,7 @@ import { PromptChatSidebar } from "@/components/PromptChatSidebar";
 import { AppNavDrawer } from "@/components/AppNavDrawer";
 import { SiteShell } from "@/components/SiteShell";
 import { usePageMeta } from "@/lib/usePageMeta";
+import { useAuth } from "@/lib/auth";
 
 type Platform = "youtube" | "tiktok";
 type Result = { src: string | null; final: boolean; error: string | null; loading: boolean };
@@ -40,6 +41,7 @@ export default function IndexPage() {
   const [prompt, setPrompt] = useState("");
   const [yt, setYt] = useState<Result>(EMPTY);
   const [tt, setTt] = useState<Result>(EMPTY);
+  const { consumeCredit } = useAuth();
 
   const busy = yt.loading || tt.loading;
   const status: "idle" | "rendering" | "ready" | "error" = busy
@@ -53,6 +55,8 @@ export default function IndexPage() {
   async function generate() {
     const p = prompt.trim();
     if (!p || busy) return;
+    const ok = await consumeCredit();
+    if (!ok) return;
     setYt({ src: null, final: false, error: null, loading: true });
     setTt({ src: null, final: false, error: null, loading: true });
 

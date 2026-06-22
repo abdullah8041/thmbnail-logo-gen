@@ -17,6 +17,7 @@ import { AppNavDrawer } from "@/components/AppNavDrawer";
 import { PromptChatSidebar } from "@/components/PromptChatSidebar";
 import { SiteShell } from "@/components/SiteShell";
 import { usePageMeta } from "@/lib/usePageMeta";
+import { useAuth } from "@/lib/auth";
 
 type Variant = "square" | "wide";
 type Result = {
@@ -43,10 +44,13 @@ export default function LogosPage() {
   const [sq, setSq] = useState<Result>(EMPTY);
   const [wide, setWide] = useState<Result>(EMPTY);
   const busy = sq.loading || wide.loading;
+  const { consumeCredit } = useAuth();
 
   async function generate() {
     const p = prompt.trim();
     if (!p || busy) return;
+    const ok = await consumeCredit();
+    if (!ok) return;
     setSq({ ...EMPTY, loading: true });
     setWide({ ...EMPTY, loading: true });
 

@@ -9,7 +9,8 @@ import {
   SheetDescription,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Menu, Image as ImageIcon, Shapes, Film } from "lucide-react";
+import { Menu, Image as ImageIcon, Shapes, Film, Crown, ShieldCheck } from "lucide-react";
+import { useAuth } from "@/lib/auth";
 
 const ITEMS = [
   {
@@ -30,11 +31,29 @@ const ITEMS = [
     description: "Animate a thumbnail into a 4s clip",
     icon: Film,
   },
+  {
+    to: "/pricing" as const,
+    label: "Pricing",
+    description: "Top up credits or go unlimited",
+    icon: Crown,
+  },
 ];
 
 export function AppNavDrawer() {
   const [open, setOpen] = useState(false);
   const pathname = useLocation().pathname;
+  const { isAdmin } = useAuth();
+  const items = isAdmin
+    ? [
+        ...ITEMS,
+        {
+          to: "/admin" as const,
+          label: "Admin Panel",
+          description: "Manage users, credits & status",
+          icon: ShieldCheck,
+        },
+      ]
+    : ITEMS;
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -58,7 +77,7 @@ export function AppNavDrawer() {
           </SheetDescription>
         </SheetHeader>
         <nav className="flex flex-col gap-2 p-4">
-          {ITEMS.map((item) => {
+          {items.map((item) => {
             const Icon = item.icon;
             const active = pathname === item.to;
             return (

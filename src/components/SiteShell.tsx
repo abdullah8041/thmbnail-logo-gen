@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 import { Link, NavLink as RouterNavLink } from "react-router-dom";
+import { CreditBadge } from "@/components/CreditBadge";
+import { useAuth } from "@/lib/auth";
 
 export function SiteShell({
   children,
@@ -10,6 +12,7 @@ export function SiteShell({
   nav?: ReactNode;
   action?: ReactNode;
 }) {
+  const { user, isAdmin } = useAuth();
   return (
     <div className="relative min-h-screen overflow-hidden">
       {/* Ambient orbs */}
@@ -43,8 +46,13 @@ export function SiteShell({
             <NavLink to="/" label="Thumbnails" />
             <NavLink to="/logos" label="Logos" />
             <NavLink to="/video" label="Video" />
+            <NavLink to="/pricing" label="Pricing" />
+            {isAdmin && <NavLink to="/admin" label="Admin" />}
           </div>
-          {action}
+          <div className="flex items-center gap-2">
+            {action}
+            {user && <CreditBadge />}
+          </div>
         </div>
       </header>
 
@@ -62,7 +70,7 @@ export function SiteShell({
   );
 }
 
-function NavLink({ to, label }: { to: "/" | "/logos" | "/video"; label: string }) {
+function NavLink({ to, label }: { to: string; label: string }) {
   return (
     <RouterNavLink
       to={to}
