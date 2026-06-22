@@ -15,7 +15,7 @@ const PLANS = [
     name: "Starter",
     price: "$5",
     credits: "50 credits",
-    perks: ["50 generations", "Thumbnails · Logos · Videos", "Email support"],
+    perks: ["50 generations", "Thumbnails · Logos", "Email support"],
     accent: "cyan" as const,
   },
   {

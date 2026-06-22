@@ -5,7 +5,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import "./styles.css";
 import IndexPage from "./pages/Index";
 import LogosPage from "./pages/Logos";
-import VideoPage from "./pages/Video";
 import NotFoundPage from "./pages/NotFound";
 import AuthPage from "./pages/Auth";
 import AdminPage from "./pages/Admin";
@@ -25,7 +24,6 @@ createRoot(document.getElementById("root")!).render(
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/" element={<ProtectedRoute><IndexPage /></ProtectedRoute>} />
             <Route path="/logos" element={<ProtectedRoute><LogosPage /></ProtectedRoute>} />
-            <Route path="/video" element={<ProtectedRoute><VideoPage /></ProtectedRoute>} />
             <Route path="/pricing" element={<ProtectedRoute><PricingPage /></ProtectedRoute>} />
             <Route path="/admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
             <Route path="*" element={<NotFoundPage />} />
