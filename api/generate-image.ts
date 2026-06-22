@@ -36,9 +36,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     kind: Kind;
     variant: Variant;
   };
-  const key = process.env.OPENAI_API_KEY;
+  const key = process.env.LOVABLE_API_KEY;
   if (!key) {
-    res.status(500).send("Missing OPENAI_API_KEY");
+    res.status(500).send("Missing LOVABLE_API_KEY");
     return;
   }
   if (!prompt?.trim()) {
@@ -51,22 +51,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return;
   }
 
-  const upstream = await fetch("https://api.openai.com/v1/images/generations", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${key}`,
-      "Content-Type": "application/json",
+  const upstream = await fetch(
+    "https://ai.gateway.lovable.dev/v1/images/generations",
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${key}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "openai/gpt-image-2",
+        prompt: `${spec.hint}. ${prompt}`,
+        size: spec.size,
+        quality: "low",
+        n: 1,
+        stream: true,
+        partial_images: 2,
+      }),
     },
-    body: JSON.stringify({
-      model: "gpt-image-1",
-      prompt: `${spec.hint}. ${prompt}`,
-      size: spec.size,
-      quality: "low",
-      n: 1,
-      stream: true,
-      partial_images: 2,
-    }),
-  });
+  );
 
   if (!upstream.ok || !upstream.body) {
     res.status(upstream.status).send(await upstream.text());
