@@ -45,7 +45,6 @@ export function SiteShell({
           <div className="hidden items-center gap-1 md:flex">
             <NavLink to="/" label="Thumbnails" />
             <NavLink to="/logos" label="Logos" />
-            <NavLink to="/video" label="Video" />
             <NavLink to="/pricing" label="Pricing" />
             {isAdmin && <NavLink to="/admin" label="Admin" />}
           </div>

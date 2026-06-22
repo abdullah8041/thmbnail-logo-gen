@@ -27,7 +27,7 @@ export function NoCreditsModal() {
             Free Credits <span className="text-gradient-pink-cyan">Exhausted!</span>
           </DialogTitle>
           <DialogDescription className="text-center">
-            Upgrade to Premium to continue generating thumbnails, logos and videos.
+            Upgrade to Premium to continue generating thumbnails and logos.
           </DialogDescription>
         </DialogHeader>
         <div className="mt-2 grid gap-2">

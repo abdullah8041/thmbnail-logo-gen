@@ -9,7 +9,7 @@ import {
   SheetDescription,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Menu, Image as ImageIcon, Shapes, Film, Crown, ShieldCheck } from "lucide-react";
+import { Menu, Image as ImageIcon, Shapes, Crown, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 
 const ITEMS = [
@@ -24,12 +24,6 @@ const ITEMS = [
     label: "Logo Creation",
     description: "Design square & wide brand logos",
     icon: Shapes,
-  },
-  {
-    to: "/video" as const,
-    label: "AI Video Generator",
-    description: "Animate a thumbnail into a 4s clip",
-    icon: Film,
   },
   {
     to: "/pricing" as const,
