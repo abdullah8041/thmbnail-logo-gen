@@ -24,16 +24,32 @@ export async function saveGeneration(input: {
 }): Promise<void> {
   const { data: auth } = await supabase.auth.getUser();
   const uid = auth.user?.id;
-  if (!uid) return;
-  // Avoid persisting empty/oversized streams (cap ~6 MB data URLs).
-  if (!input.image_url || input.image_url.length > 6_000_000) return;
-  await supabase.from("generation_history").insert({
+  if (!uid) {
+    console.warn("[history] skip save: no authenticated user");
+    return;
+  }
+  if (!input.image_url) {
+    console.warn("[history] skip save: empty image_url");
+    return;
+  }
+  // Cap data URLs ~9 MB to stay under Postgres TOAST/limits.
+  if (input.image_url.length > 9_000_000) {
+    console.warn(
+      "[history] skip save: image_url too large",
+      input.image_url.length,
+    );
+    return;
+  }
+  const { error } = await supabase.from("generation_history").insert({
     user_id: uid,
     kind: input.kind,
     prompt: input.prompt,
     image_url: input.image_url,
     meta: (input.meta ?? {}) as never,
   });
+  if (error) {
+    console.error("[history] insert failed", error);
+  }
 }
 
 export function groupHistoryByDate<T extends { created_at: string }>(items: T[]) {
