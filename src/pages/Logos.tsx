@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { streamImage } from "@/lib/streamImage";
+import { functionUrl, functionHeaders } from "@/lib/apiEndpoint";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -52,10 +53,11 @@ export default function LogosPage() {
     const run = async (variant: Variant, set: (r: Result) => void) => {
       try {
         await streamImage(
-          "/api/generate-image",
+          functionUrl("generate-image"),
           { prompt: p, kind: "logo", variant },
           (src, isFinal) =>
             set({ src, final: isFinal, error: null, loading: !isFinal }),
+          { headers: functionHeaders },
         );
       } catch (e) {
         set({

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { streamImage } from "@/lib/streamImage";
+import { functionUrl, functionHeaders } from "@/lib/apiEndpoint";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -58,10 +59,11 @@ export default function IndexPage() {
     const run = async (platform: Platform, set: (r: Result) => void) => {
       try {
         await streamImage(
-          "/api/generate-image",
+          functionUrl("generate-image"),
           { prompt: p, kind: "thumbnail", variant: platform },
           (src, isFinal) =>
             set({ src, final: isFinal, error: null, loading: !isFinal }),
+          { headers: functionHeaders },
         );
       } catch (e) {
         set({
