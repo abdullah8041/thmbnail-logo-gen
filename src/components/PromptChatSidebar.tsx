@@ -11,28 +11,10 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Wand2, Copy, Check, Loader2, Send, ArrowRight, Shapes } from "lucide-react";
-import { getStoredKey } from "@/lib/apiKey";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
 type Kind = "thumbnail" | "logo";
-
-const SYSTEMS: Record<Kind, string> = {
-  thumbnail: `You are a thumbnail prompt engineer. Rewrite the user's simple topic into ONE vivid, detailed image-generation prompt for a YouTube/TikTok thumbnail.
-
-Rules:
-- Output ONLY the final prompt text. No preamble, no explanations, no quotes, no markdown.
-- 2-4 sentences, under 90 words.
-- Include: subject + action, camera/composition, lighting, color palette, mood/style, and a short bold on-image text suggestion in quotes.
-- Make it click-worthy, high-contrast, and visually specific.`,
-  logo: `You are a brand identity prompt engineer. Rewrite the user's simple brand idea into ONE vivid, detailed image-generation prompt for a modern logo.
-
-Rules:
-- Output ONLY the final prompt text. No preamble, no explanations, no quotes, no markdown.
-- 2-4 sentences, under 90 words.
-- Include: brand name (in quotes if given), icon/symbol concept, typography style, color palette with hex or named colors, geometry/shape language, mood (minimal, playful, luxury, techy, etc.), and background treatment.
-- Favor clean, scalable, vector-friendly designs. Avoid photographic detail.`,
-};
 
 const PRESETS: Record<
   Kind,
@@ -88,43 +70,15 @@ export function PromptChatSidebar({
     setStreaming(true);
 
     try {
-      const stored = getStoredKey();
-      let url: string;
-      let model: string;
-      const headers: Record<string, string> = { "Content-Type": "application/json" };
-
-      if (stored?.provider === "openai") {
-        url = "https://api.openai.com/v1/chat/completions";
-        model = "gpt-4o-mini";
-        headers["Authorization"] = `Bearer ${stored.key}`;
-      } else if (stored?.provider === "lovable") {
-        url = "https://ai.gateway.lovable.dev/v1/chat/completions";
-        model = "google/gemini-2.5-flash";
-        headers["Lovable-API-Key"] = stored.key;
-      } else {
-        // Free fallback — Pollinations text endpoint (OpenAI-compatible, no key).
-        url = "https://text.pollinations.ai/openai";
-        model = "openai";
-      }
-      const system = SYSTEMS[kind];
-
-      const res = await fetch(url, {
+      const res = await fetch("/api/rewrite-prompt", {
         method: "POST",
-        headers,
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model,
-          stream: true,
-          referrer: "thumbly",
-          messages: [
-            { role: "system", content: system },
-            ...next.filter((m) => m.content.trim().length > 0),
-          ],
+          kind,
+          messages: next.filter((m) => m.content.trim().length > 0),
         }),
       });
-      if (!res.ok || !res.body) {
-        const errText = await res.text().catch(() => "");
-        throw new Error(`${res.status}: ${errText.slice(0, 200)}`);
-      }
+      if (!res.ok || !res.body) throw new Error(await res.text());
 
       const parser = createParser({
         onEvent: (e: EventSourceMessage) => {
