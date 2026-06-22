@@ -39,7 +39,7 @@ const SAMPLES = [
 
 export default function LogosPage() {
   usePageMeta({
-    title: "ProFX.ai — AI Logo Generator",
+    title: "ProFX.ai | Premium AI Thumbnail & Logo Generator for Gamers",
     description: "Generate clean, modern brand logos from a single text prompt with AI.",
   });
   const [prompt, setPrompt] = useState("");

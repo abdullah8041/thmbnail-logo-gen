@@ -30,7 +30,7 @@ const PLANS = [
 
 export default function PricingPage() {
   usePageMeta({
-    title: "Pricing — ProFX.ai",
+    title: "ProFX.ai | Premium AI Thumbnail & Logo Generator for Gamers",
     description: "Simple credit packs and unlimited Pro access for ProFX.ai's AI thumbnails, logos and clips.",
   });
   return (
