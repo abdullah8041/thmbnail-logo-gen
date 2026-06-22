@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      generation_history: {
+        Row: {
+          created_at: string
+          id: string
+          image_url: string
+          kind: string
+          meta: Json
+          prompt: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_url: string
+          kind: string
+          meta?: Json
+          prompt: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_url?: string
+          kind?: string
+          meta?: Json
+          prompt?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           bonus_granted: boolean

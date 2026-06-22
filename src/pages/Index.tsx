@@ -16,9 +16,11 @@ import {
 } from "lucide-react";
 import { PromptChatSidebar } from "@/components/PromptChatSidebar";
 import { AppNavDrawer } from "@/components/AppNavDrawer";
+import { HistoryDrawer } from "@/components/HistoryDrawer";
 import { SiteShell } from "@/components/SiteShell";
 import { usePageMeta } from "@/lib/usePageMeta";
 import { useAuth } from "@/lib/auth";
+import { saveGeneration, type HistoryItem } from "@/lib/history";
 
 type Platform = "youtube" | "tiktok";
 type Result = { src: string | null; final: boolean; error: string | null; loading: boolean };
@@ -80,6 +82,26 @@ export default function IndexPage() {
     };
 
     await Promise.all([run("youtube", setYt), run("tiktok", setTt)]);
+
+    // Persist finished frames to history (fire-and-forget).
+    setYt((cur) => {
+      if (cur.src && cur.final)
+        void saveGeneration({
+          kind: "thumbnail-youtube",
+          prompt: p,
+          image_url: cur.src,
+        });
+      return cur;
+    });
+    setTt((cur) => {
+      if (cur.src && cur.final)
+        void saveGeneration({
+          kind: "thumbnail-tiktok",
+          prompt: p,
+          image_url: cur.src,
+        });
+      return cur;
+    });
   }
 
   function download(src: string, name: string) {
@@ -89,9 +111,24 @@ export default function IndexPage() {
     a.click();
   }
 
+  function openHistory(item: HistoryItem) {
+    setPrompt(item.prompt);
+    const result: Result = { src: item.image_url, final: true, error: null, loading: false };
+    if (item.kind === "thumbnail-youtube") setYt(result);
+    else if (item.kind === "thumbnail-tiktok") setTt(result);
+  }
+
   return (
     <SiteShell
-      nav={<AppNavDrawer />}
+      nav={
+        <div className="flex items-center gap-2">
+          <AppNavDrawer />
+          <HistoryDrawer
+            kinds={["thumbnail-youtube", "thumbnail-tiktok"]}
+            onOpen={openHistory}
+          />
+        </div>
+      }
       action={<PromptChatSidebar onUsePrompt={(p) => setPrompt(p)} />}
     >
       <HeroLine status={status} />
