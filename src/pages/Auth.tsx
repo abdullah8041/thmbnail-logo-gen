@@ -83,10 +83,10 @@ export default function AuthPage() {
       <div className="w-full max-w-md">
         <Link to="/" className="mb-6 flex items-center justify-center gap-2">
           <span className="grid h-9 w-9 place-items-center rounded-lg bg-gradient-to-br from-[oklch(0.7_0.28_350)] to-[oklch(0.86_0.18_190)] font-display text-base font-bold text-background shadow-[0_0_20px_oklch(0.7_0.28_350/0.5)]">
-            T
+            P
           </span>
           <span className="font-display text-lg font-bold tracking-tight">
-            ProFX.ai<span className="text-accent">.</span>
+            ProFX<span className="text-accent">.ai</span>
           </span>
         </Link>
 
