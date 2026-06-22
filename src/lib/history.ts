@@ -32,7 +32,7 @@ export async function saveGeneration(input: {
     kind: input.kind,
     prompt: input.prompt,
     image_url: input.image_url,
-    meta: input.meta ?? {},
+    meta: (input.meta ?? {}) as never,
   });
 }
 
