@@ -48,17 +48,7 @@ export async function streamImage(
   if (!spec) throw new Error(`Invalid kind/variant: ${body.kind}/${body.variant}`);
 
   const fullPrompt = `${spec.hint}. ${body.prompt}`;
-  const seed = Math.floor(Math.random() * 1_000_000);
-  const url =
-    `https://image.pollinations.ai/prompt/${encodeURIComponent(fullPrompt)}` +
-    `?width=${spec.width}&height=${spec.height}&seed=${seed}` +
-    `&nologo=true&model=flux&referrer=thumbly`;
-
-  const res = await fetch(url);
-  if (!res.ok) {
-    throw new Error(`Image generation failed: ${res.status}`);
-  }
-  const blob = await res.blob();
+  const blob = await fetchWithFallback(fullPrompt, spec.width, spec.height);
   const dataUrl: string = await new Promise((resolve, reject) => {
     const fr = new FileReader();
     fr.onload = () => resolve(fr.result as string);
@@ -66,4 +56,59 @@ export async function streamImage(
     fr.readAsDataURL(blob);
   });
   onFrame(dataUrl, true);
+}
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+function buildUrl(prompt: string, w: number, h: number, model: "flux" | "turbo") {
+  const seed = Math.floor(Math.random() * 1_000_000);
+  return (
+    `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}` +
+    `?width=${w}&height=${h}&seed=${seed}&nologo=true&model=${model}&referrer=thumbly`
+  );
+}
+
+async function tryFetch(
+  prompt: string,
+  w: number,
+  h: number,
+  model: "flux" | "turbo",
+  maxRetries: number,
+): Promise<Blob> {
+  let lastStatus = 0;
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const res = await fetch(buildUrl(prompt, w, h, model));
+      if (res.ok) return await res.blob();
+      lastStatus = res.status;
+      // Retry only on rate-limit / transient errors
+      if (res.status !== 429 && res.status < 500) {
+        throw new Error(`Image generation failed: ${res.status}`);
+      }
+    } catch (e) {
+      if (attempt === maxRetries) throw e;
+    }
+    if (attempt < maxRetries) {
+      // Exponential backoff with jitter: 1s, 2s, 4s ...
+      const delay = 1000 * 2 ** attempt + Math.floor(Math.random() * 400);
+      await sleep(delay);
+    }
+  }
+  throw new Error(`Image generation failed: ${lastStatus || "unknown"}`);
+}
+
+async function fetchWithFallback(prompt: string, w: number, h: number): Promise<Blob> {
+  try {
+    return await tryFetch(prompt, w, h, "flux", 3);
+  } catch (primaryErr) {
+    // Fallback to Pollinations' lighter "turbo" model — different queue, often available
+    // when flux is rate-limited.
+    try {
+      return await tryFetch(prompt, w, h, "turbo", 2);
+    } catch {
+      throw primaryErr instanceof Error
+        ? primaryErr
+        : new Error("Image generation failed");
+    }
+  }
 }
