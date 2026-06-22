@@ -36,11 +36,11 @@ export function NoCreditsModal() {
               <Sparkles className="h-4 w-4" /> View pricing plans
             </Link>
           </Button>
-          <a href={WA} target="_blank" rel="noopener noreferrer">
-            <Button variant="outline" size="lg" className="w-full gap-2 border-[#25D366]/40 text-[#25D366] hover:bg-[#25D366]/10 hover:text-[#25D366]">
+          <Button asChild variant="outline" size="lg" className="w-full gap-2 border-[#25D366]/40 text-[#25D366] hover:bg-[#25D366]/10 hover:text-[#25D366]">
+            <a href={WA} target="_blank" rel="noopener noreferrer" onClick={() => setShowNoCredits(false)}>
               <MessageCircle className="h-4 w-4" /> Pay via EasyPaisa / JazzCash
-            </Button>
-          </a>
+            </a>
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

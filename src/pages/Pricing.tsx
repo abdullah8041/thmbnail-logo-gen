@@ -64,11 +64,11 @@ export default function PricingPage() {
               Prefer to pay locally? Send payment via EasyPaisa or JazzCash and we'll add credits to your account manually within minutes.
             </p>
           </div>
-          <a href={WA_URL} target="_blank" rel="noopener noreferrer">
-            <Button size="lg" className="gap-2 bg-[#25D366] text-black hover:brightness-110">
+          <Button asChild size="lg" className="gap-2 bg-[#25D366] text-black hover:brightness-110">
+            <a href={WA_URL} target="_blank" rel="noopener noreferrer">
               <MessageCircle className="h-4 w-4" /> Pay via WhatsApp
-            </Button>
-          </a>
+            </a>
+          </Button>
         </div>
       </section>
 
