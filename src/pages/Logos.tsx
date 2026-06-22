@@ -56,15 +56,25 @@ export default function LogosPage() {
     setSq({ ...EMPTY, loading: true });
     setWide({ ...EMPTY, loading: true });
 
-    const run = async (variant: Variant, set: (r: Result) => void) => {
+    const run = async (
+      variant: Variant,
+      set: (r: Result) => void,
+      kind: string,
+    ) => {
+      let lastSrc: string | null = null;
       try {
         await streamImage(
           functionUrl("generate-image"),
           { prompt: p, kind: "logo", variant },
-          (src, isFinal) =>
-            set({ src, final: isFinal, error: null, loading: !isFinal }),
+          (src, isFinal) => {
+            lastSrc = src;
+            set({ src, final: isFinal, error: null, loading: !isFinal });
+          },
           { headers: functionHeaders },
         );
+        if (lastSrc) {
+          await saveGeneration({ kind, prompt: p, image_url: lastSrc });
+        }
       } catch (e) {
         set({
           src: null,
@@ -75,18 +85,10 @@ export default function LogosPage() {
       }
     };
 
-    await Promise.all([run("square", setSq), run("wide", setWide)]);
-
-    setSq((cur) => {
-      if (cur.src && cur.final)
-        void saveGeneration({ kind: "logo-square", prompt: p, image_url: cur.src });
-      return cur;
-    });
-    setWide((cur) => {
-      if (cur.src && cur.final)
-        void saveGeneration({ kind: "logo-wide", prompt: p, image_url: cur.src });
-      return cur;
-    });
+    await Promise.all([
+      run("square", setSq, "logo-square"),
+      run("wide", setWide, "logo-wide"),
+    ]);
   }
 
   function download(src: string, name: string) {
