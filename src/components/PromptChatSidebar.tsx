@@ -11,7 +11,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Wand2, Copy, Check, Loader2, Send, ArrowRight, Shapes } from "lucide-react";
-import { requireKey } from "@/lib/apiKey";
+import { getStoredKey } from "@/lib/apiKey";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -88,16 +88,24 @@ export function PromptChatSidebar({
     setStreaming(true);
 
     try {
-      const { key, provider } = requireKey();
-      const url =
-        provider === "openai"
-          ? "https://api.openai.com/v1/chat/completions"
-          : "https://ai.gateway.lovable.dev/v1/chat/completions";
+      const stored = getStoredKey();
+      let url: string;
+      let model: string;
       const headers: Record<string, string> = { "Content-Type": "application/json" };
-      if (provider === "openai") headers["Authorization"] = `Bearer ${key}`;
-      else headers["Lovable-API-Key"] = key;
 
-      const model = provider === "openai" ? "gpt-4o-mini" : "google/gemini-2.5-flash";
+      if (stored?.provider === "openai") {
+        url = "https://api.openai.com/v1/chat/completions";
+        model = "gpt-4o-mini";
+        headers["Authorization"] = `Bearer ${stored.key}`;
+      } else if (stored?.provider === "lovable") {
+        url = "https://ai.gateway.lovable.dev/v1/chat/completions";
+        model = "google/gemini-2.5-flash";
+        headers["Lovable-API-Key"] = stored.key;
+      } else {
+        // Free fallback — Pollinations text endpoint (OpenAI-compatible, no key).
+        url = "https://text.pollinations.ai/openai";
+        model = "openai";
+      }
       const system = SYSTEMS[kind];
 
       const res = await fetch(url, {
@@ -106,6 +114,7 @@ export function PromptChatSidebar({
         body: JSON.stringify({
           model,
           stream: true,
+          referrer: "thumbly",
           messages: [
             { role: "system", content: system },
             ...next.filter((m) => m.content.trim().length > 0),
