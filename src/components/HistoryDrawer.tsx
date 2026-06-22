@@ -39,14 +39,19 @@ export function HistoryDrawer({ kinds, onOpen }: Props) {
       .order("created_at", { ascending: false })
       .limit(100);
     if (kinds && kinds.length) q = q.in("kind", kinds);
-    const { data } = await q;
+    const { data, error } = await q;
+    if (error) {
+      console.error("[history] fetch failed", error);
+    }
     setItems((data ?? []) as HistoryItem[]);
     setLoading(false);
   }, [user, kinds]);
 
+  // Fetch on mount / when the signed-in user changes — so the drawer
+  // already has content the first time it opens.
   useEffect(() => {
-    if (open) load();
-  }, [open, load]);
+    load();
+  }, [load]);
 
   // Live updates: refresh when this user's history changes.
   useEffect(() => {
@@ -62,14 +67,14 @@ export function HistoryDrawer({ kinds, onOpen }: Props) {
           filter: `user_id=eq.${user.id}`,
         },
         () => {
-          if (open) load();
+          load();
         },
       )
       .subscribe();
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, open, load]);
+  }, [user, load]);
 
   async function remove(id: string) {
     setItems((cur) => cur.filter((i) => i.id !== id));
