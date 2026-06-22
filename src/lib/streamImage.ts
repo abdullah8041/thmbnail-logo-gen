@@ -34,8 +34,9 @@ export async function streamImage(
         return;
       }
       const isFinal = event.event === "image_generation.completed";
+      const mime = payload.b64_json.startsWith("/9j/") ? "image/jpeg" : "image/png";
       flushSync(() => {
-        onFrame(`data:image/png;base64,${payload.b64_json}`, isFinal);
+        onFrame(`data:${mime};base64,${payload.b64_json}`, isFinal);
       });
       if (isFinal) sawCompleted = true;
     },
