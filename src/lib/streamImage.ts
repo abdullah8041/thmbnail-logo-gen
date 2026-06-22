@@ -101,4 +101,3 @@ export async function streamImage(
   }
   throw lastErr instanceof Error ? lastErr : new Error(String(lastErr));
 }
-}
