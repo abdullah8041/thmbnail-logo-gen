@@ -19,7 +19,7 @@ export default function VideoPage() {
   usePageMeta({
     title: "AI Video Generator — Thumbly",
     description:
-      "Turn a prompt or thumbnail into a free 4-second animated gaming clip — no API keys required.",
+      "Turn a prompt or thumbnail into a free 15-second cinematic animated gaming clip — no API keys required.",
   });
 
   const [prompt, setPrompt] = useState("");
@@ -81,7 +81,7 @@ export default function VideoPage() {
     }
     try {
       const blob = await animateImageToVideo(imageSrc, {
-        durationMs: 4000,
+        durationMs: 15000,
         fps: 30,
         width: 1280,
         height: 720,
@@ -104,7 +104,7 @@ export default function VideoPage() {
           <Film className="h-3 w-3" /> AI Video Generator · free
         </div>
         <h1 className="mt-3 font-display text-4xl font-bold tracking-tight sm:text-5xl">
-          Turn a thumbnail into a <span className="text-gradient-pink-cyan">4-second clip</span>
+          Turn a thumbnail into a <span className="text-gradient-pink-cyan">15-second cinematic clip</span>
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
           Generate a thumbnail (or upload one), pick a motion style, and we'll render a short animated gaming clip
@@ -206,7 +206,7 @@ export default function VideoPage() {
               <div className="grid h-full w-full place-items-center text-muted-foreground">
                 <div className="flex flex-col items-center gap-2 text-xs">
                   <Film className="h-6 w-6" />
-                  Your 4-second clip will appear here
+                  Your 15-second cinematic clip will appear here
                 </div>
               </div>
             )}
