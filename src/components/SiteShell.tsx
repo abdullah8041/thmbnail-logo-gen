@@ -35,10 +35,10 @@ export function SiteShell({
             {nav}
             <Link to="/" className="group flex items-center gap-2">
               <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-[oklch(0.7_0.28_350)] to-[oklch(0.86_0.18_190)] font-display text-sm font-bold text-background shadow-[0_0_20px_oklch(0.7_0.28_350/0.5)]">
-                T
+                P
               </span>
               <span className="font-display text-base font-bold tracking-tight">
-                thumbly<span className="text-accent">.</span>
+                ProFX<span className="text-accent">.ai</span>
               </span>
             </Link>
           </div>
@@ -61,7 +61,7 @@ export function SiteShell({
 
       <footer className="border-t border-border/40 py-6">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-          <span>thumbly · neon edition</span>
+          <span>© 2026 ProFX.ai. All rights reserved.</span>
           <span className="text-accent">// online</span>
         </div>
       </footer>

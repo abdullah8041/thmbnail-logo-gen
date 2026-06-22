@@ -10,8 +10,8 @@ import { usePageMeta } from "@/lib/usePageMeta";
 
 export default function AuthPage() {
   usePageMeta({
-    title: "Sign in — Thumbly",
-    description: "Sign in or create a free Thumbly account to generate AI thumbnails, logos and clips.",
+    title: "Sign in — ProFX.ai",
+    description: "Sign in or create a free ProFX.ai account to generate AI thumbnails, logos and clips.",
   });
   const { user, loading } = useAuth();
   const location = useLocation();
@@ -83,10 +83,10 @@ export default function AuthPage() {
       <div className="w-full max-w-md">
         <Link to="/" className="mb-6 flex items-center justify-center gap-2">
           <span className="grid h-9 w-9 place-items-center rounded-lg bg-gradient-to-br from-[oklch(0.7_0.28_350)] to-[oklch(0.86_0.18_190)] font-display text-base font-bold text-background shadow-[0_0_20px_oklch(0.7_0.28_350/0.5)]">
-            T
+            P
           </span>
           <span className="font-display text-lg font-bold tracking-tight">
-            thumbly<span className="text-accent">.</span>
+            ProFX<span className="text-accent">.ai</span>
           </span>
         </Link>
 
@@ -99,7 +99,7 @@ export default function AuthPage() {
               {mode === "signup" ? (
                 <>Start with <span className="text-gradient-pink-cyan">3 free credits</span></>
               ) : (
-                <>Sign in to <span className="text-gradient-pink-cyan">thumbly</span></>
+                <>Sign in to <span className="text-gradient-pink-cyan">ProFX.ai</span></>
               )}
             </h1>
             <p className="mt-2 text-sm text-muted-foreground">

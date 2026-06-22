@@ -7,7 +7,7 @@ import { usePageMeta } from "@/lib/usePageMeta";
 
 const WHATSAPP = "923080364133";
 const WA_URL = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(
-  "Hi! I'd like to buy Thumbly credits via EasyPaisa / JazzCash.",
+  "Hi! I'd like to buy ProFX.ai credits via EasyPaisa / JazzCash.",
 )}`;
 
 const PLANS = [
@@ -30,8 +30,8 @@ const PLANS = [
 
 export default function PricingPage() {
   usePageMeta({
-    title: "Pricing — Thumbly",
-    description: "Simple credit packs and unlimited Pro access for Thumbly's AI thumbnails, logos and clips.",
+    title: "Pricing — ProFX.ai",
+    description: "Simple credit packs and unlimited Pro access for ProFX.ai's AI thumbnails, logos and clips.",
   });
   return (
     <SiteShell nav={<AppNavDrawer />}>

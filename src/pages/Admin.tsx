@@ -25,8 +25,8 @@ type Row = {
 
 export default function AdminPage() {
   usePageMeta({
-    title: "Admin · Thumbly",
-    description: "Thumbly admin dashboard — manage users, credits and premium access.",
+    title: "Admin · ProFX.ai",
+    description: "ProFX.ai admin dashboard — manage users, credits and premium access.",
   });
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
