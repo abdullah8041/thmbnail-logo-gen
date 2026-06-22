@@ -10,8 +10,8 @@ import NotFoundPage from "./pages/NotFound";
 import AuthPage from "./pages/Auth";
 import AdminPage from "./pages/Admin";
 import PricingPage from "./pages/Pricing";
-import { AuthProvider, ProtectedRoute, AdminRoute } from "./lib/auth";
-import { NoCreditsModal } from "./components/NoCreditsModal";
+import { AuthProvider, ProtectedRoute, AdminRoute } from "@/lib/auth";
+import { NoCreditsModal } from "@/components/NoCreditsModal";
 import { Toaster } from "./components/ui/sonner";
 
 const queryClient = new QueryClient();
