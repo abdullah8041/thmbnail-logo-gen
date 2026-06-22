@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import "./styles.css";
 import IndexPage from "./pages/Index";
 import LogosPage from "./pages/Logos";
+import VideoPage from "./pages/Video";
 import NotFoundPage from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -16,6 +17,7 @@ createRoot(document.getElementById("root")!).render(
         <Routes>
           <Route path="/" element={<IndexPage />} />
           <Route path="/logos" element={<LogosPage />} />
+          <Route path="/video" element={<VideoPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </BrowserRouter>
