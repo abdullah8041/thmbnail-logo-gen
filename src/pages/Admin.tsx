@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ShieldCheck, Users, Crown, Coins, RefreshCw, Plus, Loader2 } from "lucide-react";
+import { ShieldCheck, Users, Crown, Coins, RefreshCw, Plus, Loader2, RotateCcw } from "lucide-react";
 import { SiteShell } from "@/components/SiteShell";
 import { AppNavDrawer } from "@/components/AppNavDrawer";
 import { Button } from "@/components/ui/button";
@@ -62,6 +62,13 @@ export default function AdminPage() {
       _user_id: id,
       _status: current === "premium" ? "free" : "premium",
     });
+    await load();
+    setBusy(null);
+  }
+
+  async function resetCredits(id: string) {
+    setBusy(id);
+    await (supabase.rpc as any)("admin_reset_credits", { _user_id: id, _amount: 3 });
     await load();
     setBusy(null);
   }
@@ -144,6 +151,16 @@ export default function AdminPage() {
                         className="gap-1.5"
                       >
                         <Plus className="h-3 w-3" /> Credits
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={busy === r.id}
+                        onClick={() => resetCredits(r.id)}
+                        className="gap-1.5 border-accent/40 text-accent hover:bg-accent/10"
+                        title="Reset this user's credits to 3"
+                      >
+                        <RotateCcw className="h-3 w-3" /> Reset
                       </Button>
                       <Button
                         size="sm"
