@@ -39,6 +39,12 @@ export default function AuthPage() {
     setMsg(null);
     setBusy(true);
     try {
+      if (!email || !password) {
+        throw new Error("Email and password are required");
+      }
+      if (password.length < 6) {
+        throw new Error("Password must be at least 6 characters");
+      }
       if (mode === "signup") {
         const { error } = await supabase.auth.signUp({
           email,
@@ -46,8 +52,12 @@ export default function AuthPage() {
           options: { emailRedirectTo: `${window.location.origin}/` },
         });
         if (error) throw error;
-        setMsg("Account created! You can sign in now.");
-        setMode("signin");
+        // Auto-confirm is enabled, so sign in immediately.
+        const { error: signInErr } = await supabase.auth.signInWithPassword({ email, password });
+        if (signInErr) {
+          setMsg("Account created! Please sign in.");
+          setMode("signin");
+        }
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
