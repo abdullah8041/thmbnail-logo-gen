@@ -62,15 +62,25 @@ export default function IndexPage() {
     setYt({ src: null, final: false, error: null, loading: true });
     setTt({ src: null, final: false, error: null, loading: true });
 
-    const run = async (platform: Platform, set: (r: Result) => void) => {
+    const run = async (
+      platform: Platform,
+      set: (r: Result) => void,
+      kind: string,
+    ) => {
+      let lastSrc: string | null = null;
       try {
         await streamImage(
           functionUrl("generate-image"),
           { prompt: p, kind: "thumbnail", variant: platform },
-          (src, isFinal) =>
-            set({ src, final: isFinal, error: null, loading: !isFinal }),
+          (src, isFinal) => {
+            lastSrc = src;
+            set({ src, final: isFinal, error: null, loading: !isFinal });
+          },
           { headers: functionHeaders },
         );
+        if (lastSrc) {
+          await saveGeneration({ kind, prompt: p, image_url: lastSrc });
+        }
       } catch (e) {
         set({
           src: null,
@@ -81,27 +91,10 @@ export default function IndexPage() {
       }
     };
 
-    await Promise.all([run("youtube", setYt), run("tiktok", setTt)]);
-
-    // Persist finished frames to history (fire-and-forget).
-    setYt((cur) => {
-      if (cur.src && cur.final)
-        void saveGeneration({
-          kind: "thumbnail-youtube",
-          prompt: p,
-          image_url: cur.src,
-        });
-      return cur;
-    });
-    setTt((cur) => {
-      if (cur.src && cur.final)
-        void saveGeneration({
-          kind: "thumbnail-tiktok",
-          prompt: p,
-          image_url: cur.src,
-        });
-      return cur;
-    });
+    await Promise.all([
+      run("youtube", setYt, "thumbnail-youtube"),
+      run("tiktok", setTt, "thumbnail-tiktok"),
+    ]);
   }
 
   function download(src: string, name: string) {
