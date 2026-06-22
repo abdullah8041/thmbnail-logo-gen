@@ -42,6 +42,7 @@ export function SiteShell({
           <div className="hidden items-center gap-1 md:flex">
             <NavLink to="/" label="Thumbnails" />
             <NavLink to="/logos" label="Logos" />
+            <NavLink to="/video" label="Video" />
           </div>
           {action}
         </div>
@@ -61,7 +62,7 @@ export function SiteShell({
   );
 }
 
-function NavLink({ to, label }: { to: "/" | "/logos"; label: string }) {
+function NavLink({ to, label }: { to: "/" | "/logos" | "/video"; label: string }) {
   return (
     <RouterNavLink
       to={to}
