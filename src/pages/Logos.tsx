@@ -39,7 +39,7 @@ const SAMPLES = [
 
 export default function LogosPage() {
   usePageMeta({
-    title: "Thumbly — AI Logo Generator",
+    title: "ProFX.ai — AI Logo Generator",
     description: "Generate clean, modern brand logos from a single text prompt with AI.",
   });
   const [prompt, setPrompt] = useState("");

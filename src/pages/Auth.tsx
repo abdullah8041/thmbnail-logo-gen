@@ -10,8 +10,8 @@ import { usePageMeta } from "@/lib/usePageMeta";
 
 export default function AuthPage() {
   usePageMeta({
-    title: "Sign in — Thumbly",
-    description: "Sign in or create a free Thumbly account to generate AI thumbnails, logos and clips.",
+    title: "Sign in — ProFX.ai",
+    description: "Sign in or create a free ProFX.ai account to generate AI thumbnails, logos and clips.",
   });
   const { user, loading } = useAuth();
   const location = useLocation();
@@ -86,7 +86,7 @@ export default function AuthPage() {
             T
           </span>
           <span className="font-display text-lg font-bold tracking-tight">
-            thumbly<span className="text-accent">.</span>
+            ProFX.ai<span className="text-accent">.</span>
           </span>
         </Link>
 
@@ -99,7 +99,7 @@ export default function AuthPage() {
               {mode === "signup" ? (
                 <>Start with <span className="text-gradient-pink-cyan">3 free credits</span></>
               ) : (
-                <>Sign in to <span className="text-gradient-pink-cyan">thumbly</span></>
+                <>Sign in to <span className="text-gradient-pink-cyan">ProFX.ai</span></>
               )}
             </h1>
             <p className="mt-2 text-sm text-muted-foreground">

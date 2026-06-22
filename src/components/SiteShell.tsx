@@ -38,7 +38,7 @@ export function SiteShell({
                 T
               </span>
               <span className="font-display text-base font-bold tracking-tight">
-                thumbly<span className="text-accent">.</span>
+                ProFX.ai<span className="text-accent">.</span>
               </span>
             </Link>
           </div>
@@ -61,7 +61,7 @@ export function SiteShell({
 
       <footer className="border-t border-border/40 py-6">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-          <span>thumbly · neon edition</span>
+          <span>ProFX.ai · neon edition</span>
           <span className="text-accent">// online</span>
         </div>
       </footer>

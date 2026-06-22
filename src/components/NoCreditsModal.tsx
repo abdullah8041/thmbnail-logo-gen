@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 
 const WA = `https://wa.me/923080364133?text=${encodeURIComponent(
-  "Hi! I'd like to top up my Thumbly credits via EasyPaisa / JazzCash.",
+  "Hi! I'd like to top up my ProFX.ai credits via EasyPaisa / JazzCash.",
 )}`;
 
 export function NoCreditsModal() {

@@ -36,7 +36,7 @@ const SAMPLES = [
 
 export default function IndexPage() {
   usePageMeta({
-    title: "Thumbly — AI YouTube & TikTok Thumbnail Generator",
+    title: "ProFX.ai — AI YouTube & TikTok Thumbnail Generator",
     description:
       "Generate eye-catching YouTube and TikTok thumbnails from a single text prompt with AI.",
   });
