@@ -7,6 +7,12 @@ import IndexPage from "./pages/Index";
 import LogosPage from "./pages/Logos";
 import VideoPage from "./pages/Video";
 import NotFoundPage from "./pages/NotFound";
+import AuthPage from "./pages/Auth";
+import AdminPage from "./pages/Admin";
+import PricingPage from "./pages/Pricing";
+import { AuthProvider, ProtectedRoute, AdminRoute } from "./lib/auth";
+import { NoCreditsModal } from "./components/NoCreditsModal";
+import { Toaster } from "./components/ui/sonner";
 
 const queryClient = new QueryClient();
 
@@ -14,12 +20,19 @@ createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<IndexPage />} />
-          <Route path="/logos" element={<LogosPage />} />
-          <Route path="/video" element={<VideoPage />} />
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
+        <AuthProvider>
+          <Routes>
+            <Route path="/auth" element={<AuthPage />} />
+            <Route path="/" element={<ProtectedRoute><IndexPage /></ProtectedRoute>} />
+            <Route path="/logos" element={<ProtectedRoute><LogosPage /></ProtectedRoute>} />
+            <Route path="/video" element={<ProtectedRoute><VideoPage /></ProtectedRoute>} />
+            <Route path="/pricing" element={<ProtectedRoute><PricingPage /></ProtectedRoute>} />
+            <Route path="/admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+          <NoCreditsModal />
+          <Toaster />
+        </AuthProvider>
       </BrowserRouter>
     </QueryClientProvider>
   </React.StrictMode>,
