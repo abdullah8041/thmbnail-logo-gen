@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { AppNavDrawer } from "@/components/AppNavDrawer";
 import { SiteShell } from "@/components/SiteShell";
 import { usePageMeta } from "@/lib/usePageMeta";
+import { useAuth } from "@/lib/auth";
 import { Loader2, Download, Sparkles, Film, Upload, Image as ImageIcon } from "lucide-react";
 
 const STYLES: { id: AnimateStyle; label: string; hint: string }[] = [
@@ -33,6 +34,7 @@ export default function VideoPage() {
   const [progress, setProgress] = useState(0);
   const [vidError, setVidError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { consumeCredit } = useAuth();
 
   useEffect(() => {
     return () => {
@@ -43,6 +45,8 @@ export default function VideoPage() {
   async function generateThumbnail() {
     const p = prompt.trim();
     if (!p || imgLoading) return;
+    const ok = await consumeCredit();
+    if (!ok) return;
     setImgError(null);
     setImgLoading(true);
     setImageSrc(null);
@@ -72,6 +76,8 @@ export default function VideoPage() {
 
   async function generateVideo() {
     if (!imageSrc || vidLoading) return;
+    const ok = await consumeCredit();
+    if (!ok) return;
     setVidError(null);
     setVidLoading(true);
     setProgress(0);
