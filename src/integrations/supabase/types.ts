@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       profiles: {
         Row: {
+          bonus_granted: boolean
           created_at: string
           credits: number
           email: string
@@ -24,6 +25,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          bonus_granted?: boolean
           created_at?: string
           credits?: number
           email: string
@@ -32,6 +34,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          bonus_granted?: boolean
           created_at?: string
           credits?: number
           email?: string
@@ -69,6 +72,10 @@ export type Database = {
     Functions: {
       admin_add_credits: {
         Args: { _amount: number; _user_id: string }
+        Returns: undefined
+      }
+      admin_reset_credits: {
+        Args: { _amount?: number; _user_id: string }
         Returns: undefined
       }
       admin_set_status: {
