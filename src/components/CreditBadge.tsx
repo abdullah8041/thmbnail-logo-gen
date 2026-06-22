@@ -27,6 +27,11 @@ export function CreditBadge() {
           <span className="font-mono text-xs">
             {unlimited ? "Unlimited" : `${profile.credits} credit${profile.credits === 1 ? "" : "s"}`}
           </span>
+          {!unlimited && (
+            <span className="rounded-full border border-primary/40 bg-primary/10 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-primary">
+              One-time offer
+            </span>
+          )}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
