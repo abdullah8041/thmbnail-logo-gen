@@ -36,9 +36,9 @@ const SAMPLES = [
 
 export default function IndexPage() {
   usePageMeta({
-    title: "ProFX.ai — AI YouTube & TikTok Thumbnail Generator",
+    title: "ProFX.ai | Premium AI Thumbnail & Logo Generator for Gamers",
     description:
-      "Generate eye-catching YouTube and TikTok thumbnails from a single text prompt with AI.",
+      "Create high-quality, high-CTR gaming thumbnails and esports logos instantly with ProFX.ai. Powered by advanced AI to give your YouTube and TikTok channels a professional edge.",
   });
   const [prompt, setPrompt] = useState("");
   const [yt, setYt] = useState<Result>(EMPTY);
@@ -249,13 +249,13 @@ function HeroLine({ status }: { status: "idle" | "rendering" | "ready" | "error"
     <header className="flex flex-wrap items-end justify-between gap-6">
       <div className="min-w-0">
         <div className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-primary">
-          <Zap className="h-3 w-3" /> Thumbnail Engine
+          <Zap className="h-3 w-3" /> ProFX.ai Thumbnail Engine
         </div>
         <h1 className="mt-4 text-balance text-5xl font-bold leading-[0.95] sm:text-6xl">
-          Make people <span className="text-gradient-pink-cyan">click</span>.
+          Premium AI thumbnails for <span className="text-gradient-pink-cyan">gamers</span>.
         </h1>
         <p className="mt-3 max-w-xl text-sm text-muted-foreground sm:text-base">
-          One prompt. A 16:9 YouTube hero and a 9:16 TikTok cover — streamed live.
+          Create high-CTR gaming thumbnails and esports logos instantly. Give your YouTube and TikTok channels a professional edge.
         </p>
       </div>
       <div className="inline-flex items-center gap-2 rounded-full border border-border/50 bg-card/40 px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
