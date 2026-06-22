@@ -12,7 +12,7 @@ const REMEMBER_KEY = "profx.rememberMe";
 
 export default function AuthPage() {
   usePageMeta({
-    title: "Sign in — ProFX.ai",
+    title: "ProFX.ai | Premium AI Thumbnail & Logo Generator for Gamers",
     description: "Sign in or create a free ProFX.ai account to generate AI thumbnails, logos and clips.",
   });
   const { user, loading } = useAuth();

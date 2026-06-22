@@ -25,7 +25,7 @@ type Row = {
 
 export default function AdminPage() {
   usePageMeta({
-    title: "Admin · ProFX.ai",
+    title: "ProFX.ai | Premium AI Thumbnail & Logo Generator for Gamers",
     description: "ProFX.ai admin dashboard — manage users, credits and premium access.",
   });
   const [rows, setRows] = useState<Row[]>([]);
