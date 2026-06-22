@@ -1,4 +1,4 @@
-// Client-side image -> 4s animated video using Canvas + MediaRecorder.
+// Client-side image -> 15s animated video using Canvas + MediaRecorder.
 // No external API, fully free.
 
 export type AnimateStyle = "kenburns" | "pulse" | "glitch";
@@ -17,7 +17,7 @@ export async function animateImageToVideo(
   imageSrc: string,
   opts: AnimateOptions = {},
 ): Promise<Blob> {
-  const durationMs = opts.durationMs ?? 4000;
+  const durationMs = opts.durationMs ?? 15000;
   const fps = opts.fps ?? 30;
   const width = opts.width ?? 1280;
   const height = opts.height ?? 720;
@@ -95,15 +95,18 @@ function drawFrame(
   let dy = 0;
 
   if (style === "kenburns") {
-    zoom = 1.05 + t * 0.22; // slow zoom-in
-    dx = (t - 0.5) * 60; // gentle pan
-    dy = (0.5 - t) * 30;
+    // Slow, continuous cinematic zoom + smooth sinusoidal pan for a 15s preview
+    zoom = 1.04 + t * 0.18; // gentle, steady zoom-in across the full clip
+    dx = Math.sin(t * Math.PI) * 70; // smooth one-way sweep, eases at both ends
+    dy = Math.cos(t * Math.PI) * 28;
   } else if (style === "pulse") {
-    zoom = 1.08 + Math.sin(t * Math.PI * 2) * 0.04;
+    // ~3 slow breathing pulses across 15s, with a subtle drift so it never feels static
+    zoom = 1.08 + Math.sin(t * Math.PI * 6) * 0.035 + t * 0.04;
   } else if (style === "glitch") {
-    zoom = 1.12 + Math.sin(t * Math.PI * 4) * 0.02;
-    dx = (Math.random() - 0.5) * 6;
-    dy = (Math.random() - 0.5) * 6;
+    // Slower wobble + softer jitter so 15s stays watchable instead of seizure-y
+    zoom = 1.1 + Math.sin(t * Math.PI * 8) * 0.025 + t * 0.05;
+    dx = (Math.random() - 0.5) * 4;
+    dy = (Math.random() - 0.5) * 4;
   }
 
   const dw = baseW * zoom;
@@ -111,7 +114,7 @@ function drawFrame(
   const cx = (w - dw) / 2 + dx;
   const cy = (h - dh) / 2 + dy;
 
-  if (style === "glitch" && Math.random() < 0.18) {
+  if (style === "glitch" && Math.random() < 0.09) {
     // RGB split
     ctx.globalCompositeOperation = "lighter";
     ctx.globalAlpha = 0.6;
@@ -135,9 +138,9 @@ function drawFrame(
   for (let y = 0; y < h; y += 3) ctx.fillRect(0, y, w, 1);
   ctx.globalAlpha = 1;
 
-  // Intro fade
-  const fadeIn = Math.min(1, t / 0.08);
-  const fadeOut = Math.min(1, (1 - t) / 0.08);
+  // Intro/outro fade (proportionally shorter relative to the 15s clip)
+  const fadeIn = Math.min(1, t / 0.04);
+  const fadeOut = Math.min(1, (1 - t) / 0.04);
   const fade = Math.min(fadeIn, fadeOut);
   if (fade < 1) {
     ctx.fillStyle = `rgba(0,0,0,${1 - fade})`;
@@ -146,7 +149,7 @@ function drawFrame(
 
   // Caption
   if (caption) {
-    const slide = Math.min(1, t / 0.25);
+    const slide = Math.min(1, t / 0.1);
     const y = h - 70 + (1 - slide) * 40;
     const alpha = slide;
     ctx.font = `700 ${Math.round(h * 0.07)}px Inter, system-ui, sans-serif`;
