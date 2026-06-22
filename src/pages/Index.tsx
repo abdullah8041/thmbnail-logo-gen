@@ -252,7 +252,7 @@ function HeroLine({ status }: { status: "idle" | "rendering" | "ready" | "error"
           <Zap className="h-3 w-3" /> ProFX.ai Thumbnail Engine
         </div>
         <h1 className="mt-4 text-balance text-5xl font-bold leading-[0.95] sm:text-6xl">
-          Premium AI thumbnails for <span class="text-gradient-pink-cyan">gamers</span>.
+          Premium AI thumbnails for <span className="text-gradient-pink-cyan">gamers</span>.
         </h1>
         <p className="mt-3 max-w-xl text-sm text-muted-foreground sm:text-base">
           Create high-CTR gaming thumbnails and esports logos instantly. Give your YouTube and TikTok channels a professional edge.
