@@ -105,6 +105,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [user]);
 
+  // "Remember me": if the user opted out at sign-in, drop the session when
+  // the tab is closed so they aren't auto-signed-in on return.
+  useEffect(() => {
+    if (!user) return;
+    const onHide = () => {
+      if (typeof localStorage === "undefined") return;
+      if (localStorage.getItem("profx.rememberMe") === "false") {
+        // Wipe persisted Supabase auth tokens for this project.
+        Object.keys(localStorage)
+          .filter((k) => k.startsWith("sb-") && k.endsWith("-auth-token"))
+          .forEach((k) => localStorage.removeItem(k));
+      }
+    };
+    window.addEventListener("pagehide", onHide);
+    return () => window.removeEventListener("pagehide", onHide);
+  }, [user]);
+
   const refreshProfile = useCallback(async () => {
     await loadProfile(user);
   }, [loadProfile, user]);
