@@ -11,6 +11,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Wand2, Copy, Check, Loader2, Send, ArrowRight, Shapes } from "lucide-react";
+import { requireKey } from "@/lib/apiKey";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -70,15 +71,34 @@ export function PromptChatSidebar({
     setStreaming(true);
 
     try {
-      const res = await fetch("/api/rewrite-prompt", {
+      const { key, provider } = requireKey();
+      const url =
+        provider === "openai"
+          ? "https://api.openai.com/v1/chat/completions"
+          : "https://ai.gateway.lovable.dev/v1/chat/completions";
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (provider === "openai") headers["Authorization"] = `Bearer ${key}`;
+      else headers["Lovable-API-Key"] = key;
+
+      const model = provider === "openai" ? "gpt-4o-mini" : "google/gemini-2.5-flash";
+      const system = SYSTEMS[kind];
+
+      const res = await fetch(url, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify({
-          kind,
-          messages: next.filter((m) => m.content.trim().length > 0),
+          model,
+          stream: true,
+          messages: [
+            { role: "system", content: system },
+            ...next.filter((m) => m.content.trim().length > 0),
+          ],
         }),
       });
-      if (!res.ok || !res.body) throw new Error(await res.text());
+      if (!res.ok || !res.body) {
+        const errText = await res.text().catch(() => "");
+        throw new Error(`${res.status}: ${errText.slice(0, 200)}`);
+      }
 
       const parser = createParser({
         onEvent: (e: EventSourceMessage) => {
