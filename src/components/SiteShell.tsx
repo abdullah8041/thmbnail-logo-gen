@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { Link, NavLink as RouterNavLink } from "react-router-dom";
+import { ApiKeySettings } from "@/components/ApiKeySettings";
 
 export function SiteShell({
   children,
@@ -43,7 +44,10 @@ export function SiteShell({
             <NavLink to="/" label="Thumbnails" />
             <NavLink to="/logos" label="Logos" />
           </div>
-          {action}
+          <div className="flex items-center gap-2">
+            <ApiKeySettings />
+            {action}
+          </div>
         </div>
       </header>
 
