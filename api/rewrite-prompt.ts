@@ -29,21 +29,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     kind?: Kind;
   };
   const system = SYSTEMS[kind ?? "thumbnail"] ?? SYSTEMS.thumbnail;
-  const key = process.env.LOVABLE_API_KEY;
-  if (!key) {
-    res.status(500).send("Missing LOVABLE_API_KEY");
-    return;
-  }
 
-  const upstream = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+  const upstream = await fetch("https://text.pollinations.ai/openai", {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${key}`,
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      model: "google/gemini-3-flash-preview",
+      model: "openai",
       stream: true,
+      referrer: "lovable",
       messages: [{ role: "system", content: system }, ...messages],
     }),
   });
