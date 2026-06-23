@@ -92,10 +92,10 @@ function devApiPlugin(): Plugin {
           res.end("Method Not Allowed");
           return;
         }
-        const key = process.env.LOVABLE_API_KEY;
+        const key = process.env.OPENAI_API_KEY;
         if (!key) {
           res.statusCode = 500;
-          res.end("Missing LOVABLE_API_KEY");
+          res.end("Missing OPENAI_API_KEY");
           return;
         }
         try {
@@ -118,7 +118,7 @@ function devApiPlugin(): Plugin {
               return;
             }
             const upstream = await fetch(
-              "https://ai.gateway.lovable.dev/v1/images/generations",
+              "https://api.openai.com/v1/images/generations",
               {
                 method: "POST",
                 headers: {
@@ -126,7 +126,7 @@ function devApiPlugin(): Plugin {
                   "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                  model: "openai/gpt-image-2",
+                  model: "gpt-image-1",
                   prompt: `${spec.hint}. ${prompt}`,
                   size: spec.size,
                   quality: "low",
@@ -148,7 +148,7 @@ function devApiPlugin(): Plugin {
           const system =
             REWRITE_SYSTEMS[kind ?? "thumbnail"] ?? REWRITE_SYSTEMS.thumbnail;
           const upstream = await fetch(
-            "https://ai.gateway.lovable.dev/v1/chat/completions",
+            "https://api.openai.com/v1/chat/completions",
             {
               method: "POST",
               headers: {
@@ -156,7 +156,7 @@ function devApiPlugin(): Plugin {
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({
-                model: "google/gemini-3-flash-preview",
+                model: "gpt-4o-mini",
                 stream: true,
                 messages: [{ role: "system", content: system }, ...(messages ?? [])],
               }),

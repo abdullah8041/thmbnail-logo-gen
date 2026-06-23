@@ -33,9 +33,9 @@ Deno.serve(async (req) => {
     return new Response("Method Not Allowed", { status: 405, headers: corsHeaders });
   }
 
-  const key = Deno.env.get("LOVABLE_API_KEY");
+  const key = Deno.env.get("OPENAI_API_KEY");
   if (!key) {
-    return new Response("Missing LOVABLE_API_KEY", { status: 500, headers: corsHeaders });
+    return new Response("Missing OPENAI_API_KEY", { status: 500, headers: corsHeaders });
   }
 
   let body: { prompt?: string; kind?: Kind; variant?: string };
@@ -54,7 +54,7 @@ Deno.serve(async (req) => {
   }
 
   const upstream = await fetch(
-    "https://ai.gateway.lovable.dev/v1/images/generations",
+    "https://api.openai.com/v1/images/generations",
     {
       method: "POST",
       headers: {
@@ -62,7 +62,7 @@ Deno.serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "openai/gpt-image-2",
+        model: "gpt-image-1",
         prompt: `${spec.hint}. ${prompt}`,
         size: spec.size,
         quality: "low",
