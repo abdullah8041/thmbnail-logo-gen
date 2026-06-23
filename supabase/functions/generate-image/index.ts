@@ -75,10 +75,22 @@ Deno.serve(async (req) => {
 
   if (!upstream.ok || !upstream.body) {
     const text = await upstream.text().catch(() => "");
-    return new Response(text || "Upstream error", {
-      status: upstream.status,
-      headers: corsHeaders,
-    });
+    if (upstream.status === 402) {
+      return new Response(
+        JSON.stringify({ type: "payment_required", message: "Not enough credits" }),
+        { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+    if (upstream.status === 429) {
+      return new Response(
+        JSON.stringify({ type: "rate_limited", message: "Rate limit exceeded, please try again shortly" }),
+        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+    return new Response(
+      JSON.stringify({ type: "upstream_error", message: text || "Upstream error" }),
+      { status: upstream.status, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+    );
   }
 
   return new Response(upstream.body, {
