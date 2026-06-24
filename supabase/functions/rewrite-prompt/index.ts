@@ -69,7 +69,7 @@ const KEYWORDS: Record<Exclude<Category, "generic">, string[]> = {
 
 const ENRICHMENT: Record<Category, string> = {
   gaming:
-    "Highly detailed 4K gaming thumbnail, esports style, cinematic dynamic action pose, intense facial expression, explosive particle effects, neon contrast lighting, motion blur, vibrant red and blue color grading, dramatic depth of field, bold composition, click-worthy",
+    "hyper-realistic Free Fire style YouTube gaming thumbnail, clean character render in dynamic action pose, sharp esports composition, intense confident facial expression, weapon in hand, explosive fire and smoke particles behind subject, neon red and electric blue rim lighting, cinematic motion blur, ultra-detailed skin and gear textures, vivid HDR color grading, dramatic depth of field, bold click-worthy framing, 4K ultra sharp focus",
   tech:
     "Sleek modern 4K tech thumbnail, premium product hero shot, glossy reflections, soft studio lighting, clean minimal background, subtle blue and purple gradient glow, sharp focus on the device, ultra-detailed surfaces, high contrast, professional",
   finance:
