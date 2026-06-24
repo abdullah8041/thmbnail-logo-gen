@@ -58,17 +58,22 @@ Deno.serve(async (req) => {
   let upstream: Response;
   try {
     upstream = await fetch(
-      "https://router.huggingface.co/hf-inference/models/black-forest-labs/FLUX.1-schnell",
+      "https://router.huggingface.co/together/v1/images/generations",
       {
         method: "POST",
         headers: {
           Authorization: `Bearer ${key}`,
           "Content-Type": "application/json",
-          Accept: "image/png",
+          Accept: "application/json",
         },
         body: JSON.stringify({
-          inputs: `${spec.hint}. ${prompt}`,
-          parameters: { width: w, height: h, num_inference_steps: 4 },
+          model: "black-forest-labs/FLUX.1-schnell-Free",
+          prompt: `${spec.hint}. ${prompt}`,
+          width: w,
+          height: h,
+          steps: 4,
+          n: 1,
+          response_format: "b64_json",
         }),
       },
     );
@@ -102,14 +107,34 @@ Deno.serve(async (req) => {
     );
   }
 
-  const bytes = new Uint8Array(await upstream.arrayBuffer());
-  // base64 encode
-  let binary = "";
-  const chunk = 0x8000;
-  for (let i = 0; i < bytes.length; i += chunk) {
-    binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
+  // Together returns OpenAI-images-shaped JSON: { data: [{ b64_json | url }] }
+  let b64 = "";
+  try {
+    const json = await upstream.json();
+    const item = json?.data?.[0] ?? {};
+    if (item.b64_json) {
+      b64 = item.b64_json;
+    } else if (item.url) {
+      const imgRes = await fetch(item.url);
+      const bytes = new Uint8Array(await imgRes.arrayBuffer());
+      let binary = "";
+      const chunk = 0x8000;
+      for (let i = 0; i < bytes.length; i += chunk) {
+        binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
+      }
+      b64 = btoa(binary);
+    } else {
+      throw new Error("No image in upstream response");
+    }
+  } catch (err) {
+    return new Response(
+      JSON.stringify({
+        type: "upstream_error",
+        message: `Failed to decode image: ${err instanceof Error ? err.message : String(err)}`,
+      }),
+      { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+    );
   }
-  const b64 = btoa(binary);
 
   const sse =
     `event: image_generation.completed\n` +
