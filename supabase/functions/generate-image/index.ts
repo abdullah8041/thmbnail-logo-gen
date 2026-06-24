@@ -33,11 +33,6 @@ Deno.serve(async (req) => {
     return new Response("Method Not Allowed", { status: 405, headers: corsHeaders });
   }
 
-  const key = Deno.env.get("LOVABLE_API_KEY");
-  if (!key) {
-    return new Response("Missing LOVABLE_API_KEY", { status: 500, headers: corsHeaders });
-  }
-
   let body: { prompt?: string; kind?: Kind; variant?: string };
   try {
     body = await req.json();
@@ -53,60 +48,58 @@ Deno.serve(async (req) => {
     return new Response("Invalid kind/variant", { status: 400, headers: corsHeaders });
   }
 
+  const [w, h] = spec.size.split("x").map((n) => parseInt(n, 10));
+  const fullPrompt = `${spec.hint}. ${prompt}`;
+  const seed = Math.floor(Math.random() * 1_000_000);
+  const url =
+    `https://image.pollinations.ai/prompt/${encodeURIComponent(fullPrompt)}` +
+    `?width=${w}&height=${h}&seed=${seed}&nologo=true&model=flux`;
+
   let upstream: Response;
   try {
-    upstream = await fetch(
-      "https://ai.gateway.lovable.dev/v1/images/generations",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${key}`,
-          "Content-Type": "application/json",
-          Accept: "text/event-stream",
-        },
-        body: JSON.stringify({
-          model: "openai/gpt-image-2",
-          prompt: `${spec.hint}. ${prompt}`,
-          size: spec.size,
-          quality: "low",
-          n: 1,
-          stream: true,
-          partial_images: 1,
-        }),
-      },
-    );
+    upstream = await fetch(url, { headers: { Accept: "image/*" } });
   } catch (err) {
     return new Response(
       JSON.stringify({
         type: "upstream_error",
-        message: `Failed to reach Lovable AI Gateway: ${err instanceof Error ? err.message : String(err)}`,
+        message: `Failed to reach Pollinations: ${err instanceof Error ? err.message : String(err)}`,
       }),
       { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   }
 
-  if (!upstream.ok || !upstream.body) {
+  if (!upstream.ok) {
     const text = await upstream.text().catch(() => "");
-    if (upstream.status === 402) {
-      return new Response(
-        JSON.stringify({ type: "payment_required", message: "Lovable AI credits exhausted" }),
-        { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
-    }
-    if (upstream.status === 429) {
-      return new Response(
-        JSON.stringify({ type: "rate_limited", message: "Rate limit exceeded, please try again shortly" }),
-        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
-    }
     return new Response(
-      JSON.stringify({ type: "upstream_error", message: text || "Upstream error" }),
-      { status: upstream.status, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      JSON.stringify({ type: "upstream_error", message: text || `Pollinations error ${upstream.status}` }),
+      { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   }
 
-  // Forward Lovable AI Gateway SSE body directly to the client.
-  return new Response(upstream.body, {
+  let b64 = "";
+  try {
+    const bytes = new Uint8Array(await upstream.arrayBuffer());
+    let binary = "";
+    const chunk = 0x8000;
+    for (let i = 0; i < bytes.length; i += chunk) {
+      binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
+    }
+    b64 = btoa(binary);
+  } catch (err) {
+    return new Response(
+      JSON.stringify({
+        type: "upstream_error",
+        message: `Failed to decode image: ${err instanceof Error ? err.message : String(err)}`,
+      }),
+      { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+    );
+  }
+
+  const sse =
+    `event: image_generation.completed\n` +
+    `data: ${JSON.stringify({ b64_json: b64 })}\n\n`;
+
+  return new Response(sse, {
     status: 200,
     headers: {
       ...corsHeaders,
