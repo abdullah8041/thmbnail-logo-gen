@@ -46,8 +46,8 @@ Deno.serve(async (req) => {
 
   // Fallback chain — if one model is rate-limited, try the next.
   const MODELS = [
+    "google/gemini-2.5-flash-lite",
     "meta-llama/llama-3.3-70b-instruct:free",
-    "google/gemini-2.5-flash-lite:free",
     "deepseek/deepseek-chat-v3.1:free",
     "qwen/qwen-2.5-72b-instruct:free",
   ];
