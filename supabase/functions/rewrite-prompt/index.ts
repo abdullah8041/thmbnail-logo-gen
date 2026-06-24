@@ -27,9 +27,9 @@ Deno.serve(async (req) => {
     return new Response("Method Not Allowed", { status: 405, headers: corsHeaders });
   }
 
-  const key = Deno.env.get("LOVABLE_API_KEY");
+  const key = Deno.env.get("OPENROUTER_API_KEY");
   if (!key) {
-    return new Response("Missing LOVABLE_API_KEY", { status: 500, headers: corsHeaders });
+    return new Response("Missing OPENROUTER_API_KEY", { status: 500, headers: corsHeaders });
   }
 
   let body: {
@@ -45,15 +45,17 @@ Deno.serve(async (req) => {
   const system = SYSTEMS[kind ?? "thumbnail"] ?? SYSTEMS.thumbnail;
 
   const upstream = await fetch(
-    "https://ai.gateway.lovable.dev/v1/chat/completions",
+    "https://openrouter.ai/api/v1/chat/completions",
     {
       method: "POST",
       headers: {
         Authorization: `Bearer ${key}`,
         "Content-Type": "application/json",
+        "HTTP-Referer": "https://profx-ai.lovable.app",
+        "X-Title": "ProFX AI",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: "meta-llama/llama-3.3-70b-instruct:free",
         stream: true,
         messages: [{ role: "system", content: system }, ...(messages ?? [])],
       }),

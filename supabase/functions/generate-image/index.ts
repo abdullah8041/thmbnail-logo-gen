@@ -33,9 +33,9 @@ Deno.serve(async (req) => {
     return new Response("Method Not Allowed", { status: 405, headers: corsHeaders });
   }
 
-  const key = Deno.env.get("LOVABLE_API_KEY");
+  const key = Deno.env.get("HUGGINGFACE_API_KEY");
   if (!key) {
-    return new Response("Missing LOVABLE_API_KEY", { status: 500, headers: corsHeaders });
+    return new Response("Missing HUGGINGFACE_API_KEY", { status: 500, headers: corsHeaders });
   }
 
   let body: { prompt?: string; kind?: Kind; variant?: string };
@@ -53,27 +53,25 @@ Deno.serve(async (req) => {
     return new Response("Invalid kind/variant", { status: 400, headers: corsHeaders });
   }
 
+  const [w, h] = spec.size.split("x").map((n) => parseInt(n, 10));
+
   const upstream = await fetch(
-    "https://ai.gateway.lovable.dev/v1/images/generations",
+    "https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell",
     {
       method: "POST",
       headers: {
         Authorization: `Bearer ${key}`,
         "Content-Type": "application/json",
+        Accept: "image/png",
       },
       body: JSON.stringify({
-        model: "openai/gpt-image-2",
-        prompt: `${spec.hint}. ${prompt}`,
-        size: spec.size,
-        quality: "low",
-        n: 1,
-        stream: true,
-        partial_images: 2,
+        inputs: `${spec.hint}. ${prompt}`,
+        parameters: { width: w, height: h, num_inference_steps: 4 },
       }),
     },
   );
 
-  if (!upstream.ok || !upstream.body) {
+  if (!upstream.ok) {
     const text = await upstream.text().catch(() => "");
     if (upstream.status === 402) {
       return new Response(
@@ -93,7 +91,20 @@ Deno.serve(async (req) => {
     );
   }
 
-  return new Response(upstream.body, {
+  const bytes = new Uint8Array(await upstream.arrayBuffer());
+  // base64 encode
+  let binary = "";
+  const chunk = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunk) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
+  }
+  const b64 = btoa(binary);
+
+  const sse =
+    `event: image_generation.completed\n` +
+    `data: ${JSON.stringify({ b64_json: b64 })}\n\n`;
+
+  return new Response(sse, {
     status: 200,
     headers: {
       ...corsHeaders,
