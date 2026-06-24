@@ -103,11 +103,17 @@ function classify(text: string): Category {
   return "generic";
 }
 
+// Default bias: when in doubt, treat any short/random user input as a Free
+// Fire-style gaming thumbnail brief. Gaming wins ties, generic falls back to
+// gaming too so the user never gets a flat/boring render.
 function enrich(raw: string): string {
   const clean = raw.trim().replace(/\s+/g, " ");
   if (!clean) return "";
-  const category = classify(clean);
-  return `${clean} — ${ENRICHMENT[category]}`;
+  let category = classify(clean);
+  if (category === "generic") category = "gaming";
+  const pack = ENRICHMENT[category];
+  // Clean single-line brief — no broken line breaks, no markdown, no quotes.
+  return `${clean}, ${pack}`.replace(/\s+/g, " ").trim();
 }
 
 Deno.serve(async (req) => {
