@@ -44,41 +44,61 @@ Deno.serve(async (req) => {
   const { messages, kind } = body;
   const system = SYSTEMS[kind ?? "thumbnail"] ?? SYSTEMS.thumbnail;
 
-  const upstream = await fetch(
-    "https://openrouter.ai/api/v1/chat/completions",
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${key}`,
-        "Content-Type": "application/json",
-        "HTTP-Referer": "https://profx-ai.lovable.app",
-        "X-Title": "ProFX AI",
-      },
-      body: JSON.stringify({
-        model: "meta-llama/llama-3.3-70b-instruct:free",
-        stream: true,
-        messages: [{ role: "system", content: system }, ...(messages ?? [])],
-      }),
-    },
-  );
+  // Fallback chain — if one model is rate-limited, try the next.
+  const MODELS = [
+    "meta-llama/llama-3.3-70b-instruct:free",
+    "google/gemini-2.0-flash-exp:free",
+    "deepseek/deepseek-chat-v3.1:free",
+    "qwen/qwen-2.5-72b-instruct:free",
+  ];
 
-  if (!upstream.ok || !upstream.body) {
-    const text = await upstream.text().catch(() => "");
-    if (upstream.status === 402) {
+  let upstream: Response | null = null;
+  let lastStatus = 0;
+  let lastText = "";
+  for (const model of MODELS) {
+    const res = await fetch(
+      "https://openrouter.ai/api/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${key}`,
+          "Content-Type": "application/json",
+          "HTTP-Referer": "https://profx-ai.lovable.app",
+          "X-Title": "ProFX AI",
+        },
+        body: JSON.stringify({
+          model,
+          stream: true,
+          messages: [{ role: "system", content: system }, ...(messages ?? [])],
+        }),
+      },
+    );
+    if (res.ok && res.body) {
+      upstream = res;
+      break;
+    }
+    lastStatus = res.status;
+    lastText = await res.text().catch(() => "");
+    // Only roll over on rate-limit / transient upstream issues.
+    if (res.status !== 429 && res.status !== 502 && res.status !== 503) break;
+  }
+
+  if (!upstream) {
+    if (lastStatus === 402) {
       return new Response(
         JSON.stringify({ type: "payment_required", message: "Not enough credits" }),
         { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
-    if (upstream.status === 429) {
+    if (lastStatus === 429) {
       return new Response(
-        JSON.stringify({ type: "rate_limited", message: "Rate limit exceeded, please try again shortly" }),
+        JSON.stringify({ type: "rate_limited", message: "All free models are rate-limited right now, please try again shortly" }),
         { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
     return new Response(
-      JSON.stringify({ type: "upstream_error", message: text || "Upstream error" }),
-      { status: upstream.status, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      JSON.stringify({ type: "upstream_error", message: lastText || "Upstream error" }),
+      { status: lastStatus || 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   }
 
