@@ -33,9 +33,9 @@ Deno.serve(async (req) => {
     return new Response("Method Not Allowed", { status: 405, headers: corsHeaders });
   }
 
-  const key = Deno.env.get("HUGGINGFACE_API_KEY");
+  const key = Deno.env.get("LOVABLE_API_KEY");
   if (!key) {
-    return new Response("Missing HUGGINGFACE_API_KEY", { status: 500, headers: corsHeaders });
+    return new Response("Missing LOVABLE_API_KEY", { status: 500, headers: corsHeaders });
   }
 
   let body: { prompt?: string; kind?: Kind; variant?: string };
@@ -53,27 +53,25 @@ Deno.serve(async (req) => {
     return new Response("Invalid kind/variant", { status: 400, headers: corsHeaders });
   }
 
-  const [w, h] = spec.size.split("x").map((n) => parseInt(n, 10));
-
   let upstream: Response;
   try {
     upstream = await fetch(
-      "https://router.huggingface.co/together/v1/images/generations",
+      "https://ai.gateway.lovable.dev/v1/images/generations",
       {
         method: "POST",
         headers: {
           Authorization: `Bearer ${key}`,
           "Content-Type": "application/json",
-          Accept: "application/json",
+          Accept: "text/event-stream",
         },
         body: JSON.stringify({
-          model: "black-forest-labs/FLUX.1-schnell-Free",
+          model: "openai/gpt-image-2",
           prompt: `${spec.hint}. ${prompt}`,
-          width: w,
-          height: h,
-          steps: 4,
+          size: spec.size,
+          quality: "low",
           n: 1,
-          response_format: "b64_json",
+          stream: true,
+          partial_images: 1,
         }),
       },
     );
@@ -81,17 +79,17 @@ Deno.serve(async (req) => {
     return new Response(
       JSON.stringify({
         type: "upstream_error",
-        message: `Failed to reach Hugging Face: ${err instanceof Error ? err.message : String(err)}`,
+        message: `Failed to reach Lovable AI Gateway: ${err instanceof Error ? err.message : String(err)}`,
       }),
       { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   }
 
-  if (!upstream.ok) {
+  if (!upstream.ok || !upstream.body) {
     const text = await upstream.text().catch(() => "");
     if (upstream.status === 402) {
       return new Response(
-        JSON.stringify({ type: "payment_required", message: "Not enough credits" }),
+        JSON.stringify({ type: "payment_required", message: "Lovable AI credits exhausted" }),
         { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
@@ -107,40 +105,8 @@ Deno.serve(async (req) => {
     );
   }
 
-  // Together returns OpenAI-images-shaped JSON: { data: [{ b64_json | url }] }
-  let b64 = "";
-  try {
-    const json = await upstream.json();
-    const item = json?.data?.[0] ?? {};
-    if (item.b64_json) {
-      b64 = item.b64_json;
-    } else if (item.url) {
-      const imgRes = await fetch(item.url);
-      const bytes = new Uint8Array(await imgRes.arrayBuffer());
-      let binary = "";
-      const chunk = 0x8000;
-      for (let i = 0; i < bytes.length; i += chunk) {
-        binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
-      }
-      b64 = btoa(binary);
-    } else {
-      throw new Error("No image in upstream response");
-    }
-  } catch (err) {
-    return new Response(
-      JSON.stringify({
-        type: "upstream_error",
-        message: `Failed to decode image: ${err instanceof Error ? err.message : String(err)}`,
-      }),
-      { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-    );
-  }
-
-  const sse =
-    `event: image_generation.completed\n` +
-    `data: ${JSON.stringify({ b64_json: b64 })}\n\n`;
-
-  return new Response(sse, {
+  // Forward Lovable AI Gateway SSE body directly to the client.
+  return new Response(upstream.body, {
     status: 200,
     headers: {
       ...corsHeaders,
