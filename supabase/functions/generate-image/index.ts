@@ -53,7 +53,7 @@ Deno.serve(async (req) => {
   const seed = Math.floor(Math.random() * 1_000_000);
   const url =
     `https://image.pollinations.ai/prompt/${encodeURIComponent(fullPrompt)}` +
-    `?width=${w}&height=${h}&seed=${seed}&nologo=true&model=flux`;
+    `?width=${w}&height=${h}&seed=${seed}&nologo=true&enhance=true&model=flux`;
 
   let upstream: Response;
   try {
