@@ -55,21 +55,32 @@ Deno.serve(async (req) => {
 
   const [w, h] = spec.size.split("x").map((n) => parseInt(n, 10));
 
-  const upstream = await fetch(
-    "https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell",
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${key}`,
-        "Content-Type": "application/json",
-        Accept: "image/png",
+  let upstream: Response;
+  try {
+    upstream = await fetch(
+      "https://router.huggingface.co/hf-inference/models/black-forest-labs/FLUX.1-schnell",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${key}`,
+          "Content-Type": "application/json",
+          Accept: "image/png",
+        },
+        body: JSON.stringify({
+          inputs: `${spec.hint}. ${prompt}`,
+          parameters: { width: w, height: h, num_inference_steps: 4 },
+        }),
       },
-      body: JSON.stringify({
-        inputs: `${spec.hint}. ${prompt}`,
-        parameters: { width: w, height: h, num_inference_steps: 4 },
+    );
+  } catch (err) {
+    return new Response(
+      JSON.stringify({
+        type: "upstream_error",
+        message: `Failed to reach Hugging Face: ${err instanceof Error ? err.message : String(err)}`,
       }),
-    },
-  );
+      { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+    );
+  }
 
   if (!upstream.ok) {
     const text = await upstream.text().catch(() => "");
