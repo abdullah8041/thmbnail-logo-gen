@@ -48,58 +48,70 @@ Deno.serve(async (req) => {
     return new Response("Invalid kind/variant", { status: 400, headers: corsHeaders });
   }
 
-  const [w, h] = spec.size.split("x").map((n) => parseInt(n, 10));
-  const fullPrompt = `${spec.hint}. ${prompt}`;
-  const seed = Math.floor(Math.random() * 1_000_000);
-  const url =
-    `https://image.pollinations.ai/prompt/${encodeURIComponent(fullPrompt)}` +
-    `?width=${w}&height=${h}&seed=${seed}&nologo=true&enhance=true&model=flux`;
+  const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+  if (!LOVABLE_API_KEY) {
+    return new Response(
+      JSON.stringify({ type: "config_error", message: "LOVABLE_API_KEY is not configured" }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+    );
+  }
 
+  const fullPrompt = `${spec.hint}. ${prompt}`;
+
+  // Gemini image models on the Lovable AI Gateway use the OpenRouter
+  // chat-completions image shape: messages + modalities. No `prompt`, no
+  // `quality`, no `partial_images` — Gemini emits partial frames natively
+  // when stream is true. The Gateway normalizes the SSE events into the
+  // OpenAI `image_generation.partial_image` / `image_generation.completed`
+  // shape the client already parses.
   let upstream: Response;
   try {
-    upstream = await fetch(url, { headers: { Accept: "image/*" } });
+    upstream = await fetch("https://ai.gateway.lovable.dev/v1/images/generations", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-3.1-flash-image",
+        messages: [{ role: "user", content: fullPrompt }],
+        modalities: ["image", "text"],
+        stream: true,
+      }),
+    });
   } catch (err) {
     return new Response(
       JSON.stringify({
         type: "upstream_error",
-        message: `Failed to reach Pollinations: ${err instanceof Error ? err.message : String(err)}`,
+        message: `Failed to reach Lovable AI Gateway: ${err instanceof Error ? err.message : String(err)}`,
       }),
       { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   }
 
-  if (!upstream.ok) {
+  if (!upstream.ok || !upstream.body) {
     const text = await upstream.text().catch(() => "");
-    return new Response(
-      JSON.stringify({ type: "upstream_error", message: text || `Pollinations error ${upstream.status}` }),
-      { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-    );
-  }
-
-  let b64 = "";
-  try {
-    const bytes = new Uint8Array(await upstream.arrayBuffer());
-    let binary = "";
-    const chunk = 0x8000;
-    for (let i = 0; i < bytes.length; i += chunk) {
-      binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
+    if (upstream.status === 402) {
+      return new Response(
+        JSON.stringify({ type: "credits_exhausted", message: "Lovable AI credits exhausted. Add credits to continue." }),
+        { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
     }
-    b64 = btoa(binary);
-  } catch (err) {
+    if (upstream.status === 429) {
+      return new Response(
+        JSON.stringify({ type: "rate_limited", message: "Rate limit exceeded. Try again shortly." }),
+        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
     return new Response(
-      JSON.stringify({
-        type: "upstream_error",
-        message: `Failed to decode image: ${err instanceof Error ? err.message : String(err)}`,
-      }),
-      { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      JSON.stringify({ type: "upstream_error", message: text || `Gateway error ${upstream.status}` }),
+      { status: upstream.status, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   }
 
-  const sse =
-    `event: image_generation.completed\n` +
-    `data: ${JSON.stringify({ b64_json: b64 })}\n\n`;
-
-  return new Response(sse, {
+  // Forward the SSE body straight through to the client so partial_image
+  // previews stream in real time. Do not buffer or re-wrap.
+  return new Response(upstream.body, {
     status: 200,
     headers: {
       ...corsHeaders,
